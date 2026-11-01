@@ -2,12 +2,17 @@
 <html lang="ro"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#14532d">
+<meta name="description" content="Cecurile din magazin, păstrate pe telefon: poze pe produse, statistici, listă de cumpărături.">
+<meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cecuri"><meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Cecurile mele</title>
 <style>
 :root{--bg:#eef1ee;--ink:#17211b;--mute:#66736b;--acc:#14532d;--paper:#fff;--line:#d5dcd6;color-scheme:light dark}
 @media(prefers-color-scheme:dark){:root{--bg:#121714;--ink:#e6ece8;--mute:#8d9a92;--acc:#4ade80;--paper:#1b231e;--line:#2b362f}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+*{box-sizing:border-box}html,body{overscroll-behavior-y:contain}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
 header{position:sticky;top:0;background:var(--bg);padding:14px 16px 10px;display:flex;gap:8px;align-items:center;z-index:2}
 h1{font-size:22px;margin:0;flex:1}
 button,.btn{font:inherit;border:1px solid var(--acc);background:none;color:var(--acc);border-radius:10px;padding:8px 12px}
@@ -46,7 +51,7 @@ input.in,select.in{width:100%;margin:6px 0;font:inherit;padding:10px;background:
 input[type=checkbox]{width:22px;height:22px;flex:none}
 
 #lb,#sc{position:fixed;inset:0;background:#000d;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px}
-#lb[hidden],#sc[hidden]{display:none}#li{max-width:100%;max-height:75vh;border-radius:12px;object-fit:contain}
+#lb[hidden],#sc[hidden],#inst[hidden]{display:none}#li{max-width:100%;max-height:75vh;border-radius:12px;object-fit:contain}
 #v{width:100%;max-width:520px;max-height:70vh;border-radius:14px;object-fit:cover}
 #m.screen-in{animation:screen-in .18s ease-out}
 @keyframes screen-in{from{opacity:.75;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -108,6 +113,7 @@ dialog[open]{animation:pop .26s var(--e)}dialog[open]::backdrop{animation:fadein
 #m.fresh .pb i{animation:grow .8s var(--e) .15s backwards}#m.fresh .bars i{animation:growy .7s var(--e) .1s backwards}
 #t{display:block;bottom:calc(92px + env(safe-area-inset-bottom));opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%,14px) scale(.98);transition:opacity .25s,transform .35s var(--e),visibility 0s .35s}
 #t.on{opacity:1;visibility:visible;pointer-events:auto;transform:translate(-50%,0);transition-delay:0s}
+#t{top:auto;right:auto;margin:0;border:0;width:max-content;height:auto;overflow:visible}
 .dr{stroke-dasharray:1;stroke-dashoffset:1;animation:draw .7s var(--e) .05s forwards}
 .lc{transition:box-shadow .2s,transform .12s var(--e),border-color .2s}.lc:active{transform:scale(.985)}
 .lc.sel{outline:0;box-shadow:0 0 0 3px var(--acc)}
@@ -180,13 +186,14 @@ html[data-vt=deck-l]::view-transition-new(rcard){animation-name:dk-in-r2}html[da
 #res .card[data-i]{content-visibility:auto;contain-intrinsic-size:auto 92px}#res .card[data-i]:hover{box-shadow:none;transform:none}.ste{text-align:center;padding:28px 8px}.ste ol{text-align:left;display:inline-block;margin:12px 0 18px;padding-left:20px;line-height:1.7}
 </style></head><body>
 <header><h1 id="h">Cecurile mele</h1><button id="b2">＋ Lipește link</button><button id="b4" title="Setări și copie de siguranță">⚙️</button></header>
-<main id="m"></main><div id="t"></div>
+<main id="m"></main><div id="t" popover="manual"></div>
 <nav id="bn"><button data-t="r">🧾<small>Cecuri</small></button><button id="fab">📷<small>Scanează</small></button><button data-t="s">📊<small>Statistici</small></button></nav>
-<dialog id="ad"><p id="am" class="mute"></p>
+<dialog id="ad"><h2 id="at" tabindex="-1" autofocus style="margin:0 0 6px;font-size:20px;outline:none">Setări</h2><p id="am" class="mute"></p>
 <div id="af"><input id="em" type="email" placeholder="Email" autocomplete="email"><input id="pw" type="password" placeholder="Parolă (minim 6 caractere)" autocomplete="current-password">
 <div class="row" style="margin-top:8px"><button id="sin" class="p">Intră</button><button id="sup">Creează cont</button></div></div>
 <div id="ao" hidden><p id="ae" class="cp"></p><button id="lo">Ieși din cont</button></div>
 <button id="lkopen" class="lkrow">🔗 Legături între produse<span class="mute">Unește produsele cu nume diferite din magazine diferite</span></button>
+<button id="inst" class="lkrow" hidden>📲 Instalează aplicația<span class="mute">Se deschide pe tot ecranul, ca o aplicație, și merge și fără internet</span></button><p id="ih" class="mute" style="font-size:13px;margin:14px 0 0" hidden>Pe iPhone/iPad: apasă Distribuie ⎋ → „Adaugă pe ecranul principal”.</p>
 <div class="row" style="margin-top:14px;gap:8px"><button id="ex">⬇ Salvează copie</button><button id="im">⬆ Restaurează copie</button></div><p class="mute" style="font-size:13px;margin:6px 0 0">Copia conține cecurile și pozele. Folosește-o ca să muți datele pe alt dispozitiv sau pe alt site.</p><input id="if" type="file" accept=".json,application/json" hidden>
 <details style="margin-top:14px"><summary class="mute">Avansat</summary><input id="px" placeholder="Adresa proxy Cloudflare (opțional)"><button id="pxs">Salvează proxy</button></details>
 <button id="ax" style="margin-top:14px">Închide</button></dialog>
@@ -206,9 +213,13 @@ addEventListener('popstate',e=>{const s=e.state;if(!s||!s.checkScanner){tab='r';
  tab=s.tab==='s'?'s':s.tab==='l'?'l':'r';prod=s.prod||null;cur=s.receiptId?R.findIndex(r=>r.id===s.receiptId):-1;ed=s.editing&&cur>=0?JSON.parse(JSON.stringify(R[cur])):null;show()});
 history.replaceState(navigationState(),'');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const toast=(s,act,fn)=>{const t=$('#t');t.textContent=s;if(act){const b=document.createElement('button');b.textContent=act;b.style.cssText='margin-left:12px;border-color:var(--bg);color:var(--bg);padding:4px 10px';b.onclick=()=>{t.classList.remove('on');fn()};t.append(b)}t.classList.add('on');clearTimeout(t.i);t.i=setTimeout(()=>t.classList.remove('on'),act?7000:4000)};
+const toast=(s,act,fn)=>{const t=$('#t');t.textContent=s;if(act){const b=document.createElement('button');b.textContent=act;b.style.cssText='margin-left:12px;border-color:var(--bg);color:var(--bg);padding:4px 10px';b.onclick=()=>{t.classList.remove('on');fn()};t.append(b)}
+ clearTimeout(t.i);clearTimeout(t.h);
+ /* #t e popover: stă în „top layer", deci apare PESTE dialoguri (showModal), lightbox și scanner */
+ try{if(t.showPopover){if(t.matches(':popover-open'))t.hidePopover();t.showPopover()}else(document.querySelector('dialog[open]')||document.body).append(t)}catch(e){}
+ t.classList.add('on');t.i=setTimeout(()=>{t.classList.remove('on');t.h=setTimeout(()=>{try{t.hidePopover&&t.hidePopover()}catch(e){}},450)},act?7000:Math.min(12000,Math.max(4000,s.length*65)))};
 const idb=n=>new Promise((ok,er)=>{const q=indexedDB.open(n,2);q.onupgradeneeded=()=>{const d=q.result;['r','p','pt'].forEach(x=>{if(!d.objectStoreNames.contains(x))d.createObjectStore(x,{keyPath:x==='r'?'id':'k'})})};q.onsuccess=()=>ok(q.result);q.onerror=er});
-const tx=(s,m,f)=>new Promise((ok,er)=>{const t=db.transaction(s,m),r=f(t.objectStore(s));t.oncomplete=()=>ok(r.result);t.onerror=er});
+const tx=(s,m,f)=>new Promise((ok,er)=>{const t=db.transaction(s,m),r=f(t.objectStore(s));t.oncomplete=()=>ok(r.result);t.onerror=e=>er(t.error||(e&&e.target&&e.target.error)||e);t.onabort=()=>er(t.error||new DOMException('Tranzacție anulată','AbortError'))});
 const key=n=>n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9а-я%.]+/g,' ').trim();
 const thumb=async src=>{const b=await createImageBitmap(await(await fetch(src)).blob()),m=Math.min(b.width,b.height),c=document.createElement('canvas');c.width=c.height=Math.min(160,m);c.getContext('2d').drawImage(b,(b.width-m)/2,(b.height-m)/2,m,m,0,0,c.width,c.height);b.close&&b.close();return c.toDataURL('image/jpeg',.72)};
 const setThumb=async(k,img)=>{try{const t=await thumb(img);await tx('pt','readwrite',o=>o.put({k,t}))}catch(e){}};
@@ -710,23 +721,68 @@ async function sync(){
  }catch(e){if(navigator.onLine)toast('Sincronizare: '+(e.message||e))}finally{syncing=0}}
 const am=m=>$('#am').textContent=m;
 $('#b4').onclick=()=>{$('#px').value=localStorage.px||'';$('#af').hidden=space!=='guest';$('#ao').hidden=space==='guest';$('#ae').textContent=localStorage.email||'';
- am(space==='guest'?'Mod guest: cecurile rămân doar pe acest dispozitiv.':'Cecurile tale se sincronizează între dispozitive.');$('#ad').showModal()};
+ am(space==='guest'?'Mod guest: cecurile rămân doar pe acest dispozitiv.':'Cecurile tale se sincronizează între dispozitive.');$('#ad').showModal();
+ {const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){a.blur();$('#at').focus({preventScroll:true})}}};
 $('#ax').onclick=()=>$('#ad').close();
-$('#ex').onclick=async()=>{const r=(await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted),p=await tx('p','readonly',o=>o.getAll());
- const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify({v:1,receipts:r,photos:p.map(x=>({k:x.k,img:x.img}))})],{type:'application/json'}));
- a.download='cecuri-'+new Date().toISOString().slice(0,10)+'.json';a.click();localStorage.bkAt=Date.now();toast(r.length+' cecuri exportate')};
+// ===== Copie de siguranță: export / import cu mesaje clare =====
+const mb=n=>n<1048576?Math.max(1,Math.round(n/1024))+' KB':(n/1048576).toFixed(n<10485760?1:0)+' MB';
+const freeMem=async()=>{try{const e=await navigator.storage.estimate();return e.quota-e.usage}catch(x){return null}};
+const isQuota=x=>!!x&&(x.name==='QuotaExceededError'||x.code===22||/quota/i.test(x.message||''));
+const isMemErr=x=>!!x&&(x instanceof RangeError||/out of memory|invalid string length|allocation|memory/i.test(x.message||''));
+class ImpErr extends Error{}
+const cn=(n,o,m)=>n+' '+(n===1?o:m);
+$('#ex').onclick=async()=>{
+ try{
+  const r=(await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted),keys=await tx('p','readonly',o=>o.getAllKeys()),n=r.filter(x=>x.id!=='__meta__').length;
+  if(!n&&!keys.length)return toast('Nu ai încă niciun cec de exportat.');
+  const parts=['{"v":1,"receipts":',JSON.stringify(r),',"photos":['];let np=0;
+  // pozele se adaugă pe rând (nu într-un singur șir uriaș), ca să nu se umple memoria
+  for(const k of keys){const x=await tx('p','readonly',o=>o.get(k));if(!x||typeof x.img!=='string'||!x.img)continue;parts.push((np++?',':'')+JSON.stringify({k:x.k,img:x.img}))}
+  parts.push(']}');
+  const blob=new Blob(parts,{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=u;a.download='cecuri-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),6e4);
+  localStorage.bkAt=Date.now();toast(cn(n,'cec','cecuri')+(np?' și '+cn(np,'poză','poze'):'')+' exportate ('+mb(blob.size)+')')
+ }catch(x){toast(isMemErr(x)?'Nu am putut crea copia: memorie insuficientă (prea multe poze deodată). Închide alte aplicații și încearcă din nou.':isQuota(x)?'Nu am putut crea copia: nu mai e loc pe dispozitiv.':'Nu am putut crea copia: '+((x&&(x.message||x.name))||x)+'.')}};
 $('#im').onclick=()=>$('#if').click();
 $('#if').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
- try{const d=JSON.parse(await f.text()),rs=d.receipts||[],ps=d.photos||[];let n=0;
-  const have=new Set((await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted).map(x=>x.id)),hp=new Set((await tx('p','readonly',o=>o.getAll())).map(x=>x.k));
-  for(const r of rs){if(!r.id||have.has(r.id))continue;if(space!=='guest')delete r.demo;r.u=Date.now();await tx('r','readwrite',o=>o.put(r));if(r.id!=='__meta__')n++}
-  for(const p of ps){if(!p.k||!p.img||hp.has(p.k))continue;await tx('p','readwrite',o=>o.put({k:p.k,img:p.img,u:Date.now()}))}
-  $('#ad').close();await load();cur=-1;show();toast(n+' cecuri importate');sync()}catch(x){toast('Fișier invalid.')}};
+ let n=0,np=0,skip=0,bad=0,stop=null;
+ const done=async()=>{if(n||np){await load();cur=-1;show()}};
+ try{
+  if(!f.size)throw new ImpErr('Fișierul e gol (0 KB). Probabil descărcarea sau copierea nu s-a terminat. Exportă din nou și alege fișierul nou.');
+  let txt;try{txt=await f.text()}catch(x){throw new ImpErr(isMemErr(x)?'Nu am destulă memorie ca să citesc fișierul ('+mb(f.size)+'). Închide alte aplicații și încearcă din nou.':'Nu pot citi fișierul. Poate e încă în cloud (nedescărcat complet) sau a fost mutat. Descarcă-l pe dispozitiv și alege-l din nou.')}
+  let d;try{d=JSON.parse(txt)}catch(x){
+   if(!(x instanceof SyntaxError))throw new ImpErr('Nu am destulă memorie ca să deschid fișierul ('+mb(f.size)+'). Închide alte aplicații și încearcă din nou.');
+   throw new ImpErr(/^\s*</.test(txt)?'Fișierul ales e o pagină web, nu o copie de siguranță. Alege fișierul „cecuri-….json”.':!/^\s*[{\[]/.test(txt)?'Fișierul ales nu e o copie de siguranță (nu are formatul aplicației). Alege un fișier „cecuri-….json”.':/[}\]]\s*$/.test(txt)?'Fișierul nu poate fi citit ca o copie de siguranță (conținut greșit sau modificat). Folosește altă copie sau exportă din nou.':'Fișierul e incomplet: pare tăiat la sfârșit (am citit doar '+mb(f.size)+'). Probabil descărcarea sau copierea a fost întreruptă. Exportă din nou și încearcă iar.')}
+  if(!d||typeof d!=='object'||!Array.isArray(d.receipts))throw new ImpErr('Fișierul e valid, dar nu e o copie făcută de această aplicație (nu conține cecuri). Alege un fișier „cecuri-….json” exportat din ⚙️ → Salvează copie.');
+  if(d.v>1)throw new ImpErr('Copia a fost făcută de o versiune mai nouă a aplicației. Reîncarcă aplicația ca să se actualizeze și încearcă din nou.');
+  const rs=d.receipts,ps=Array.isArray(d.photos)?d.photos:[];
+  const have=new Set((await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted).map(x=>x.id)),hp=new Set(await tx('p','readonly',o=>o.getAllKeys()));
+  for(const r of rs){
+   if(!r||typeof r.id!=='string'||!r.id||(r.id!=='__meta__'&&(!Array.isArray(r.items)||!Number.isFinite(r.ts)))){bad++;continue}
+   if(have.has(r.id)){if(r.id!=='__meta__')skip++;continue}
+   if(space!=='guest')delete r.demo;r.u=Date.now();
+   try{await tx('r','readwrite',o=>o.put(r));if(r.id!=='__meta__')n++}catch(x){stop=x;break}}
+  if(!stop)for(const p of ps){
+   if(!p||!p.k||!p.img)continue;if(typeof p.img!=='string'){bad++;continue}if(hp.has(p.k))continue;
+   try{await tx('p','readwrite',o=>o.put({k:p.k,img:p.img,u:Date.now()}));np++}catch(x){stop=x;break}}
+  if(stop){const q=isQuota(stop),fr=q?await freeMem():null,got=cn(n,'cec','cecuri')+(np?' și '+cn(np,'poză','poze'):'');await done();
+   throw new ImpErr(q?'Memorie insuficientă pe dispozitiv'+(fr!=null?' (mai sunt ~'+mb(Math.max(0,fr))+' libere)':'')+'. Am importat '+got+' înainte să se umple. Eliberează spațiu și repetă importul: ce e deja importat nu se dublează.':'Importul s-a oprit: nu am putut salva în memoria aplicației ('+(stop.name||stop.message||'eroare necunoscută')+'). Am importat '+got+'. Încearcă din nou: ce e deja importat nu se dublează.')}
+  $('#ad').close();await done();sync();
+  toast(n||np?cn(n,'cec importat','cecuri importate')+(np?' + '+cn(np,'poză','poze'):'')+(skip?' · '+skip+' existau deja':'')+(bad?' · '+bad+' sărite (date invalide)':''):skip&&!bad?'Nimic nou: cele '+skip+' cecuri din fișier există deja.':'Nu s-a importat nimic'+(bad?': '+cn(bad,'înregistrare invalidă','înregistrări invalide')+' în fișier.':'.'))
+ }catch(x){
+  if(!(x instanceof ImpErr))await done().catch(()=>{});
+  toast(x instanceof ImpErr?x.message:isQuota(x)?'Memorie insuficientă pe dispozitiv. Eliberează spațiu și încearcă din nou.':isMemErr(x)?'Memorie insuficientă. Închide alte aplicații și încearcă din nou.':'Importul s-a oprit: '+((x&&(x.message||x.name))||x)+(n||np?'. Am importat deja '+cn(n,'cec','cecuri')+'.':'.'))}};
 async function enter(u){space=u.id;localStorage.uid=u.id;localStorage.email=u.email||'';cur=-1;await openSpace();show();$('#ad').close();sync()}
 const cred=()=>({email:$('#em').value.trim(),password:$('#pw').value});
 $('#sin').onclick=async()=>{try{const c=await sb(),{data,error}=await c.auth.signInWithPassword(cred());if(error)return am(error.message);await enter(data.user)}catch(e){am('Nu merge fără internet.')}};
 $('#sup').onclick=async()=>{try{const c=await sb(),{data,error}=await c.auth.signUp(cred());if(error)return am(error.message);data.session?await enter(data.user):am('Verifică emailul, confirmă contul, apoi apasă Intră.')}catch(e){am('Nu merge fără internet.')}};
 $('#lo').onclick=async()=>{try{const c=await sb();await c.auth.signOut()}catch(e){}space='guest';delete localStorage.uid;delete localStorage.email;cur=-1;await openSpace();show();$('#ad').close()};
 addEventListener('online',()=>{retry();sync()});
+// ===== Instalare ca aplicație (add to home screen) =====
+let ip=null;const standalone=()=>matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;if(!standalone())$('#inst').hidden=false});
+addEventListener('appinstalled',()=>{ip=null;$('#inst').hidden=true;toast('Aplicația e instalată ✓')});
+$('#inst').onclick=async()=>{if(!ip)return;try{ip.prompt();await ip.userChoice}catch(x){}ip=null;$('#inst').hidden=true};
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone())$('#ih').hidden=false;
 (async()=>{await openSpace();history.replaceState(navigationState(),'');show();sync();retry();setInterval(()=>{if(R.some(x=>x.pending&&x.link))retry()},30000);if(!('BarcodeDetector'in window))jsqr().catch(()=>{});if('serviceWorker'in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{})})();
 </script></body></html>

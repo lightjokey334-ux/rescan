@@ -1,0 +1,17 @@
+{
+  "name": "Cecurile mele",
+  "short_name": "Cecuri",
+  "description": "Cecurile din magazin, păstrate pe telefon: poze pe produse, statistici, listă de cumpărături.",
+  "lang": "ro",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#eef1ee",
+  "theme_color": "#14532d",
+  "categories": ["finance", "shopping"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
