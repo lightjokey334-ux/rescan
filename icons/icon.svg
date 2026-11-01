@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#14532d"/><polygon points="150,100 362,100 362,412 335.5,394 309,412 282.5,394 256,412 229.5,394 203,412 176.5,394 150,412" fill="#ffffff"/>
+<rect x="184" y="148" width="144" height="16" rx="8" fill="#14532d"/>
+<rect x="184" y="196" width="144" height="11" rx="5.5" fill="#14532d" opacity=".55"/>
+<rect x="184" y="228" width="108" height="11" rx="5.5" fill="#14532d" opacity=".55"/>
+<rect x="184" y="260" width="126" height="11" rx="5.5" fill="#14532d" opacity=".55"/>
+<rect x="184" y="316" width="144" height="26" rx="8" fill="#14532d"/></svg>
