@@ -224,7 +224,165 @@ dialog#ad{width:min(92vw,420px);padding:14px 16px 12px}
 #ad .pair{display:flex;gap:8px;margin-top:8px}#ad .pair>button{flex:1;padding:9px 6px}
 #ad .hint{font-size:12px;margin:8px 0 0}
 #ad details input,#ad details button{margin-top:6px}
+
+/* ===== Alegere mod adăugare cec ===== */
+#ch{padding:20px;width:min(94vw,440px)}
+#ch>h2{margin:0 0 4px;font-size:20px}
+#ch>.mute{font-size:13px;margin:0 0 14px}
+#ch .chb{display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;text-align:left;border-radius:12px;font:inherit;font-size:15px;cursor:pointer;margin-bottom:8px}
+#ch .chb .ico{font-size:24px;line-height:1;flex:none}
+#ch .chb .lb{display:flex;flex-direction:column;gap:2px;min-width:0}
+#ch .chb .lb b{font-weight:600}
+#ch .chb .lb small{font-size:12px;font-weight:400;opacity:.75;color:var(--mute)}
+#ch .chb.p .lb small{color:var(--paper);opacity:.85}
+
+/* ===== Sidebar (doar desktop) ===== */
+.sidebar{display:none}
+.stat-pair>h3.sec{margin:18px 0 6px}
+.stat-pair>.card{margin-bottom:6px}
+
+/* ===== Layout pentru desktop ===== */
+@media(min-width:1024px){
+  html,body{min-height:100vh}
+  body{
+    display:grid;
+    grid-template-columns:264px minmax(0,1fr);
+    grid-template-areas:"sidebar header" "sidebar main";
+    grid-template-rows:auto 1fr;
+    padding:0;
+  }
+  .sidebar{
+    grid-area:sidebar;
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    background:var(--paper);
+    border-right:1px solid var(--line);
+    padding:20px 10px 16px;
+    position:sticky;
+    top:0;
+    height:100vh;
+    overflow-y:auto;
+  }
+  .sbrand{
+    display:flex;align-items:center;gap:10px;
+    font-size:17px;font-weight:700;
+    padding:6px 12px 22px;color:var(--acc);
+  }
+  .sbrand span[aria-hidden]{font-size:22px}
+  .snav{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 14px;border:0;background:none;color:var(--ink);
+    text-align:left;border-radius:10px;font:inherit;font-size:15px;
+    cursor:pointer;transition:background .15s,color .15s;width:100%;
+  }
+  .snav:hover{background:var(--bg)}
+  .snav.on{background:var(--acc);color:var(--paper);font-weight:600}
+  .snav.on:hover{background:var(--acc)}
+  .snav span[aria-hidden]{font-size:18px;line-height:1}
+  .ssep{height:1px;background:var(--line);margin:10px 12px}
+  #bn{display:none}
+  header{
+    grid-area:header;
+    max-width:1400px;
+    width:100%;
+    margin:0 auto;
+    padding:22px 32px 12px;
+  }
+  header #b2,header #b4{display:none}
+  h1{font-size:24px}
+  main{
+    grid-area:main;
+    max-width:1400px;
+    width:100%;
+    margin:0 auto;
+    padding:0 32px 60px;
+  }
+  main.wide{max-width:1400px}
+
+  /* --- Lista cecuri: grid pe coloane --- */
+  main[data-view="list"] #res{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(340px,1fr));
+    gap:14px;
+    align-items:start;
+  }
+  main[data-view="list"] #res>h3{grid-column:1/-1}
+  main[data-view="list"] #res>h3+ .card:not([data-i]){grid-column:1/-1}
+  main[data-view="list"] #res>.card[data-i]{
+    margin:0;
+    content-visibility:auto;
+    contain-intrinsic-size:auto 200px;
+  }
+  main[data-view="list"] #res>.card[data-i]:hover{
+    box-shadow:0 6px 22px #0000001a;
+    transform:translateY(-1px);
+  }
+  main[data-view="list"] #sq{font-size:16px}
+
+  /* --- Detaliu cec: două coloane --- */
+  main[data-view="receipt"]{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 280px;
+    grid-template-rows:auto 1fr;
+    gap:0 24px;
+    align-items:start;
+  }
+  main[data-view="receipt"]>.nav{grid-column:1/-1;margin-bottom:12px}
+  main[data-view="receipt"]>#deck{grid-column:1;grid-row:2}
+  main[data-view="receipt"]>.row{
+    grid-column:2;grid-row:2;
+    flex-direction:column;
+    align-items:stretch!important;
+    gap:12px;
+    padding-top:2px;
+  }
+  main[data-view="receipt"]>.row button,
+  main[data-view="receipt"]>.row a{
+    width:100%;text-align:center;
+  }
+
+  /* --- Statistici: grid pe două coloane pentru cardurile secundare --- */
+  main[data-view="stats"] .stats-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0 24px;
+    align-items:start;
+  }
+  main[data-view="stats"] .stats-grid>.stat-pair:only-child,
+  main[data-view="stats"] .stats-grid>.stat-pair:last-child:nth-child(odd){
+    grid-column:1/-1;
+  }
+  main[data-view="stats"]>.kp .card{padding:16px 20px}
+  main[data-view="stats"]>.kp .card b{font-size:22px}
+
+  /* --- Lățimi pentru celelalte view-uri --- */
+  main[data-view="products"]{max-width:900px!important}
+  main[data-view="ideas"]{max-width:900px!important}
+  main[data-view="product"]{max-width:1000px!important}
+  main[data-view="edit"]{max-width:720px!important}
+  main[data-view="links"]{max-width:1400px!important}
+
+  /* --- Toast centrat pe zona de conținut --- */
+  #t{left:calc(50vw + 132px);bottom:24px}
+
+  /* --- Dialoguri mai late --- */
+  dialog{width:min(90vw,600px)}
+  dialog.sheet{width:min(90vw,720px)}
+  dialog#ad{width:min(90vw,480px)}
+  dialog#ch{width:min(90vw,480px);padding:24px}
+}
 </style></head><body>
+<aside class="sidebar" aria-label="Navigare principală">
+  <div class="sbrand"><span aria-hidden="true">🧾</span> <span>Cecurile mele</span></div>
+  <button type="button" class="snav" data-t="r"><span aria-hidden="true">🧾</span> <span>Cecuri</span></button>
+  <button type="button" class="snav" id="sfab"><span aria-hidden="true">📷</span> <span>Scanează</span></button>
+  <button type="button" class="snav" data-t="s"><span aria-hidden="true">📊</span> <span>Statistici</span></button>
+  <button type="button" class="snav" data-t="l"><span aria-hidden="true">🔗</span> <span>Legături</span></button>
+  <div class="ssep"></div>
+  <button type="button" class="snav" id="sb2"><span aria-hidden="true">＋</span> <span>Lipește link</span></button>
+  <button type="button" class="snav" id="sb4"><span aria-hidden="true">⚙️</span> <span>Setări</span></button>
+</aside>
 <header><h1 id="h">Cecurile mele</h1><button id="b2">＋ Lipește link</button><button id="b4" title="Setări și copie de siguranță">⚙️</button></header>
 <main id="m"></main><div id="t" popover="manual"></div>
 <nav id="bn"><button data-t="r">🧾<small>Cecuri</small></button><button id="fab">📷<small>Scanează</small></button><button data-t="s">📊<small>Statistici</small></button></nav>
@@ -260,6 +418,11 @@ dialog#ad{width:min(92vw,420px);padding:14px 16px 12px}
 <div class="row" style="margin-top:14px;align-items:center"><b>Total cec</b><input id="m-t" class="in" type="number" inputmode="decimal" step="any" style="width:130px;margin:0;text-align:right" aria-label="Total cec"></div>
 <div id="m-err" style="color:#e5484d;font-size:14px;margin-top:8px" role="alert"></div>
 <div class="row" style="margin-top:12px"><button id="m-c">Anulează</button><button id="m-ok" class="p">Salvează cecul</button></div></dialog>
+<dialog id="ch"><h2 style="margin:0 0 4px;font-size:20px">Adaugă un cec</h2>
+<p class="mute" style="font-size:13px;margin:0 0 14px">Cum vrei să adaugi cecul?</p>
+<button type="button" class="chb p" id="chc"><span class="ico" aria-hidden="true">📷</span><span class="lb"><b>Cu camera</b><small>Scanează codul QR de pe cec</small></span></button>
+<button type="button" class="chb" id="chm"><span class="ico" aria-hidden="true">✍️</span><span class="lb"><b>Introdu manual</b><small>Scrie produsele și prețurile</small></span></button>
+<div class="row" style="margin-top:12px;justify-content:flex-end"><button id="chx">Anulează</button></div></dialog>
 <script>
 const $=s=>document.querySelector(s);const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
 let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,lastErr={},retrying=0,ed=null,sq='',sv='s',META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{}};
@@ -272,7 +435,6 @@ history.replaceState(navigationState(),'');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const toast=(s,act,fn)=>{const t=$('#t');t.textContent=s;if(act){const b=document.createElement('button');b.textContent=act;b.style.cssText='margin-left:12px;border-color:var(--bg);color:var(--bg);padding:4px 10px';b.onclick=()=>{t.classList.remove('on');fn()};t.append(b)}
  clearTimeout(t.i);clearTimeout(t.h);
- /* #t e popover: stă în „top layer", deci apare PESTE dialoguri (showModal), lightbox și scanner */
  try{if(t.showPopover){if(t.matches(':popover-open'))t.hidePopover();t.showPopover()}else(document.querySelector('dialog[open]')||document.body).append(t)}catch(e){}
  t.classList.add('on');t.i=setTimeout(()=>{t.classList.remove('on');t.h=setTimeout(()=>{try{t.hidePopover&&t.hidePopover()}catch(e){}},450)},act?7000:Math.min(12000,Math.max(4000,s.length*65)))};
 const idb=n=>new Promise((ok,er)=>{const q=indexedDB.open(n,2);q.onupgradeneeded=()=>{const d=q.result;['r','p','pt'].forEach(x=>{if(!d.objectStoreNames.contains(x))d.createObjectStore(x,{keyPath:x==='r'?'id':'k'})})};q.onsuccess=()=>ok(q.result);q.onerror=er});
@@ -307,7 +469,6 @@ function pack(n){const s=n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036
  if(u==='kg')return{v,k:'kg'};if(u==='g'||u==='gr')return{v:v/1000,k:'kg'};
  if(u==='l')return{v,k:'L'};if(u==='ml')return{v:v/1000,k:'L'};return{v:v/100,k:'L'}}
 const fmtPack=p=>!p?'':p.v<1?Math.round(p.v*1000)+(p.k==='L'?' ml':' g'):(+p.v.toFixed(2))+(p.k==='L'?' L':' kg');
-// preț pe L/kg: din mărimea din nume, sau (la produse cântărite, cantitate cu zecimale) prețul e deja pe kg
 function unitP(n,q,u,un){const p=pack(dn(n))||pack(n);if(p)return{p:u/p.v,k:p.k};if(un==='kg'||un==='L')return{p:u,k:un,w:1};if(q>0&&q%1!==0)return{p:u,k:'kg',w:1};return null}
 const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(25)}catch(e){}};
 // ===== Cardurile cecurilor: tragere live (carusel cu carduri) =====
@@ -583,7 +744,8 @@ const rcardHtml=r=>`<div class="card" id="rcard"><button id="eb" style="float:ri
  ${rItems(r)}
  ${rTotal(r)}</div>`;
 function _show(){const m=$('#m');m.classList.remove('screen-in','wide');m.onpointerdown=m.onpointermove=m.onpointerup=m.onpointercancel=null;m.classList.remove('dragsurf');dk=null;m.classList.add('fresh');clearTimeout(m.ft);m.ft=setTimeout(()=>m.classList.remove('fresh'),1400);void m.offsetWidth;m.classList.add('screen-in');if(cur<0)ed=null;$('#h').textContent=cur<0?(space==='guest'?'Cecurile mele · guest':'Cecurile mele'):'Cec';
- document.querySelectorAll('#bn [data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+ document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+ m.dataset.view=tab==='r'?(cur<0?'list':(ed&&R[cur]&&ed.id===R[cur].id?'edit':'receipt')):tab==='s'?(prod?'product':sv==='p'?'products':sv==='i'?'ideas':'stats'):tab==='l'?'links':'other';
  if(tab==='l'){$('#h').textContent='Legături';m.classList.add('wide');return linksView(m)}
  if(tab==='s'){$('#h').textContent=prod?'Produs':'Statistici';return stats()}
  if(cur<0){return listView(m)}
@@ -626,11 +788,13 @@ function stats(){const m=$('#m');m.classList.toggle('wide',!prod&&sv==='l');if(p
  <div class="mute" style="margin:-4px 0 8px">${ds}</div>
  <div class="card"><b>Pe zile</b><div class="bars">${days.map((x,i)=>`<div data-i="${i}" class="${x.v?'':'z'}">${sm==='w'?`<small>${x.v?Math.round(x.v):''}</small>`:''}<i style="height:${Math.round(x.v/mx*110)}px"></i><small>${sm==='w'?dl(x.d,{weekday:'short'}):(i===0||(i+1)%5===0?i+1:'')}</small></div>`).join('')}</div>
  <div id="cap" class="mute" style="text-align:center;min-height:20px">Atinge o zi ca să vezi cheltuielile.</div></div>
- ${ct.length?`<h3 class="sec">Pe categorii</h3><div class="card">${ct.map(([c,v])=>`<div class="sr" data-cat="${esc(c)}" style="display:block;cursor:pointer"><div class="row"><span>${c} <span class="mute">›</span></span><b class="m">${lei(v)}</b></div><div class="pb"><i style="width:${v/cx*100}%"></i></div></div>`).join('')}</div>`:''}
- ${cm.length?`<h3 class="sec">Unde ai cheltuit cel mai mult</h3><div class="card">${pl.sort((x,y)=>y.t-x.t).slice(0,8).map(p=>row(p,'× '+p.c,lei(p.t))).join('')}</div>
- <h3 class="sec">Cumpărate cel mai des</h3><div class="card">${pl.sort((x,y)=>y.c-x.c).slice(0,5).map(p=>row(p,lei(p.t)+' lei în total','× '+p.c)).join('')}</div>
- ${Object.keys(st).length>1?`<h3 class="sec">După magazin</h3><div class="card">${Object.entries(st).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div class="row sr"><span>${esc(k)}</span><b class="m">${lei(v)}</b></div>`).join('')}</div>`:''}`:'<p class="mute">Niciun cec în perioada aceasta.</p>'}
- ${ch.length?`<h3 class="sec">Prețuri care s-au schimbat</h3><div class="card">${ch.map(x=>row(x,(ns>1?esc(x.s)+' · ':'')+lei(x.q)+' → '+lei(x.l)+' lei'+(x.sfx||''),(x.d>0?'▲ ':'▼ ')+Math.abs(x.d).toFixed(0)+'%',x.d>0?'up':'dn')).join('')}</div>`:''}`;
+ <div class="stats-grid">
+ ${ct.length?`<div class="stat-pair"><h3 class="sec">Pe categorii</h3><div class="card">${ct.map(([c,v])=>`<div class="sr" data-cat="${esc(c)}" style="display:block;cursor:pointer"><div class="row"><span>${c} <span class="mute">›</span></span><b class="m">${lei(v)}</b></div><div class="pb"><i style="width:${v/cx*100}%"></i></div></div>`).join('')}</div></div>`:''}
+ ${cm.length?`<div class="stat-pair"><h3 class="sec">Unde ai cheltuit cel mai mult</h3><div class="card">${pl.sort((x,y)=>y.t-x.t).slice(0,8).map(p=>row(p,'× '+p.c,lei(p.t))).join('')}</div></div>
+ <div class="stat-pair"><h3 class="sec">Cumpărate cel mai des</h3><div class="card">${pl.sort((x,y)=>y.c-x.c).slice(0,5).map(p=>row(p,lei(p.t)+' lei în total','× '+p.c)).join('')}</div></div>
+ ${Object.keys(st).length>1?`<div class="stat-pair"><h3 class="sec">După magazin</h3><div class="card">${Object.entries(st).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div class="row sr"><span>${esc(k)}</span><b class="m">${lei(v)}</b></div>`).join('')}</div></div>`:''}`:'<p class="mute">Niciun cec în perioada aceasta.</p>'}
+ ${ch.length?`<div class="stat-pair"><h3 class="sec">Prețuri care s-au schimbat</h3><div class="card">${ch.map(x=>row(x,(ns>1?esc(x.s)+' · ':'')+lei(x.q)+' → '+lei(x.l)+' lei'+(x.sfx||''),(x.d>0?'▲ ':'▼ ')+Math.abs(x.d).toFixed(0)+'%',x.d>0?'up':'dn')).join('')}</div></div>`:''}
+ </div>`;
  m.querySelectorAll('[data-sm]').forEach(e=>e.onclick=()=>{sm=e.dataset.sm;pd=Date.now();show('fade')});
  m.querySelectorAll('[data-cat]').forEach(e=>e.onclick=()=>{pcat=e.dataset.cat;pq='';sv='p';show()});
  m.querySelectorAll('[data-i]').forEach(e=>e.onclick=()=>{const x=days[+e.dataset.i];$('#cap').textContent=dl(x.d,{weekday:'long',day:'numeric',month:'long'})+': '+(x.n?lei(x.v)+' lei · '+x.n+(x.n>1?' cecuri':' cec'):'fără cumpărături')});
@@ -677,7 +841,7 @@ const svSeg=()=>`<div class="seg"><button data-sv="s" class="${sv==='s'?'on':''}
 const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{sv=e.dataset.sv;show()});
 const card=(r,i)=>{const dr=rview==='drop',op=dr&&dropId===r.id;return`<div class="card${op?' open':''}" data-i="${i}"><div class="row"><b>${esc(r.store)}${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️</span>':''}</b><span class="m tot" style="font-size:18px">${lei(r.total)}</span></div><div class="mute">${fmt(r)} · ${r.items.length} produse${dr?'<span class="chev">▾</span>':''}</div>${op?'':`<div class="th">${r.items.slice(0,6).map(x=>pho(ck(x.n))?`<img src="${pho(ck(x.n))}" decoding="async">`:'').join('')}</div>`}${op?rdd(r):''}</div>`};
 function listView(m){
- if(!R.length){m.innerHTML='<div class="ste"><div style="font-size:44px">🧾</div><b>Niciun cec încă</b><br><ol><li>Apasă „Scanează” și arată camera la codul QR de pe cec</li><li>Produsele apar singure, cu prețuri</li><li>Atinge un produs ca să-i pui poză</li></ol><br><button id="ef" class="p">📷 Scanează primul cec</button><br><button id="efm" style="margin-top:10px">✍️ Adaugă manual</button></div>';$('#ef').onclick=()=>$('#fab').click();$('#efm').onclick=openManual;return}
+ if(!R.length){m.innerHTML='<div class="ste"><div style="font-size:44px">🧾</div><b>Niciun cec încă</b><br><ol><li>Apasă „Scanează" și alege camera sau introducerea manuală</li><li>Cu camera, produsele apar singure; manual le scrii tu</li><li>Atinge un produs ca să-i pui poză</li></ol><br><button id="ef" class="p">📷 Adaugă primul cec</button><br><button id="efm" style="margin-top:10px">✍️ Adaugă manual</button></div>';$('#ef').onclick=()=>$('#fab').click();$('#efm').onclick=openManual;return}
  m.innerHTML=bkBanner()+`${sbox('sq','🔍 Caută un cec sau un produs',sq)}<div id="res"></div>`;
  const f=()=>{const q=key(sq),res=$('#res');let ix=R.map((r,i)=>i),h='',np=0;
   if(q){ix=ix.filter(i=>{const r=R[i];return key(r.store).includes(q)||key(fmt(r)).includes(q)||r.items.some(x=>key(x.n).includes(q)||key(dn(x.n)).includes(q))});
@@ -747,8 +911,17 @@ async function scan(){
  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch(e){toast('Camera nu e permisă. Fă o poză codului.');return $('#qf').click()}
  const v=$('#v');v.srcObject=st;await v.play();$('#sc').hidden=false;let busy=0,w=0;
  tm=setInterval(async()=>{if(busy||!v.videoWidth)return;busy=1;try{const u=await decode(v,v.videoWidth,v.videoHeight);if(u){stop();addLink(u)}}catch(e){if(!w){w=1;toast('Cititorul QR nu s-a încărcat. Conectează-te o dată la internet.')}}busy=0},300)}
-$('#fab').onclick=scan;$('#sx').onclick=stop;
-document.querySelectorAll('#bn [data-t]').forEach(b=>b.onclick=()=>{const next=b.dataset.t;if(tab===next&&cur<0&&!prod)return;tab=next;cur=-1;prod=null;ed=null;pushNavigation();show()});
+// Dialog de alegere: cameră sau introducere manuală
+const openChoice=()=>{$('#ch').showModal()};
+$('#chc').onclick=()=>{$('#ch').close();scan()};
+$('#chm').onclick=()=>{$('#ch').close();openManual()};
+$('#chx').onclick=()=>$('#ch').close();
+$('#fab').onclick=openChoice;$('#sx').onclick=stop;
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const next=b.dataset.t;if(tab===next&&cur<0&&!prod)return;tab=next;cur=-1;prod=null;ed=null;pushNavigation();show()});
+// Butoanele sidebar-ului (desktop) refolosesc acțiunile existente
+if($('#sfab'))$('#sfab').onclick=()=>$('#fab').click();
+if($('#sb2'))$('#sb2').onclick=()=>$('#b2').click();
+if($('#sb4'))$('#sb4').onclick=()=>$('#b4').click();
 $('#pxs').onclick=()=>{localStorage.px=$('#px').value.trim();toast('Proxy salvat')};
 $('#lc').onclick=()=>$('#lb').hidden=true;$('#lb').onclick=e=>{if(e.target.id==='lb')$('#lb').hidden=true};
 $('#lp').onclick=()=>{$('#lb').hidden=true;$('#pf').click()};
@@ -803,7 +976,6 @@ $('#ex').onclick=async()=>{
   const r=(await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted),keys=await tx('p','readonly',o=>o.getAllKeys()),n=r.filter(x=>x.id!=='__meta__').length;
   if(!n&&!keys.length)return toast('Nu ai încă niciun cec de exportat.');
   const parts=['{"v":1,"receipts":',JSON.stringify(r),',"photos":['];let np=0;
-  // pozele se adaugă pe rând (nu într-un singur șir uriaș), ca să nu se umple memoria
   for(const k of keys){const x=await tx('p','readonly',o=>o.get(k));if(!x||typeof x.img!=='string'||!x.img)continue;parts.push((np++?',':'')+JSON.stringify({k:x.k,img:x.img}))}
   parts.push(']}');
   const blob=new Blob(parts,{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');
@@ -862,7 +1034,6 @@ $('#an-s').onclick=async()=>{const raw=alRaw,k=key(raw),v=$('#an-i').value.trim(
  META.alias=META.alias||{};const sn=snapMeta(),prev=META.alias[k],same=!v||v===raw;
  if(same&&prev===undefined){$('#an').close();return}
  if(same)delete META.alias[k];else META.alias[k]=v;
- // dacă numele ales e deja un alt produs (sau același nume alternativ), produsele se leagă automat și istoricul se unește
  let to=null;if(!same){const ak=key(v);if(ak!==k)to=R.some(r=>r.items.some(i=>key(i.n)===ak))?ak:(Object.keys(META.alias).find(x=>x!==k&&key(META.alias[x])===ak)||null)}
  const linked=to?await mkLink(k,to):false;
  await saveMeta();buildGR();$('#an').close();show();
@@ -892,7 +1063,6 @@ $('#m-it').addEventListener('input',e=>{$('#m-err').textContent='';const el=e.ta
  i.t=Math.round((parseFloat(i.q)||0)*(parseFloat(i.u)||0)*100)/100;box.querySelector('[data-s]').textContent=lei(i.t);mnSync()});
 $('#m-it').addEventListener('change',e=>{const el=e.target,box=el.closest('.mi');if(!box)return;const i=MN.items[+box.dataset.j],f=el.dataset.f;
  if(f==='un'){i.un=el.value;box.querySelector('[data-l]').textContent=mnLbl(i.un);box.querySelector('[data-f=q]').placeholder=i.un==='buc'?'1':'ex. 0.5';return}
- // completare automată: la un produs cunoscut se pun prețul și unitatea de la ultima cumpărare
  if(f==='n'&&String(i.u)===''){const b=mnLast(el.value);if(!b)return;const up=unitP(b.n,b.q,b.u,b.un);
   i.u=b.u;i.un=b.un||(up&&up.w?'kg':'buc');if(i.un!=='buc'&&!i.qt)i.q='';
   box.querySelector('[data-f=u]').value=i.u;box.querySelector('[data-f=un]').value=i.un;box.querySelector('[data-l]').textContent=mnLbl(i.un);box.querySelector('[data-f=q]').value=i.q;
