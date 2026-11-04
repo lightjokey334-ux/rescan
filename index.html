@@ -869,7 +869,7 @@ const guess=k=>{const w=k.split(' ');for(const[c,l]of KW)if(l.split(' ').some(x=
 const cat=k=>META.cats[canon(k)]||META.cats[k]||guess(META.alias&&META.alias[k]?key(META.alias[k]):k);
 const metaRec=()=>({id:'__meta__',cats:META.cats,shop:META.shop,budget:META.budget,links:META.links,pinned:META.pinned,no:META.no,alias:META.alias,sep:META.sep||[],ts:0,items:[]});
 const saveMeta=()=>save(metaRec());
-const svSeg=()=>`<div class="seg"><button data-sv="s" class="${sv==='s'?'on':''}">Rezumat</button><button data-sv="p" class="${sv==='p'?'on':''}">Produse</button><button data-sv="c" class="${sv==='c'?'on':''}">Legate</button><button data-sv="i" class="${sv==='i'?'on':''}">Idei</button></div>`;
+const svSeg=()=>`<div class="seg"><button data-sv="s" class="${sv==='s'?'on':''}">Rezumat</button><button data-sv="p" class="${sv==='p'?'on':''}">Produse</button><button data-sv="c" class="${sv==='c'?'on':''}">Prețuri</button><button data-sv="i" class="${sv==='i'?'on':''}">Idei</button></div>`;
 const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{sv=e.dataset.sv;show()});
 const card=(r,i)=>{const dr=rview==='drop',op=dr&&dropId===r.id;return`<div class="card${op?' open':''}" data-i="${i}"><div class="row"><b>${esc(r.store)}${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️</span>':''}</b><span class="m tot" style="font-size:18px">${lei(r.total)}</span></div><div class="mute">${fmt(r)} · ${r.items.length} produse${dr?'<span class="chev">▾</span>':''}</div>${op?'':`<div class="th">${r.items.slice(0,6).map(x=>{const p=pho(key(x.n),1);return p?`<img src="${p}" decoding="async">`:''}).join('')}</div>`}${op?rdd(r):''}</div>`};
 function listView(m){
@@ -1144,11 +1144,14 @@ function grpData(k,ix){ix=ix||idxAll();const c=canon(k),keys=[c,...(GR[c]||[])];
  mem.forEach(m=>{const L=m.e[0];m.n=dn(L.i.n);m.raw=L.i.n;m.v=val(L);m.stores=[...new Set(m.e.map(x=>x.r.store))];
   const vs=m.e.map(val).filter(v=>v!=null);m.min=vs.length?Math.min(...vs):null;m.max=vs.length?Math.max(...vs):null;
   const pv=m.e.slice(1).find(y=>sk(y.r.store)===sk(L.r.store)&&val(y)!=null);m.dd=pv&&m.v!=null?(m.v-val(pv))/val(pv)*100:0;
-  m.cnt=m.e.length;m.spent=m.e.reduce((s,x)=>s+x.i.t,0)});
+  m.cnt=m.e.length;m.spent=m.e.reduce((s,x)=>s+x.i.t,0);
+  const by={};m.e.forEach(x=>{const q=sk(x.r.store);if(!by[q]&&val(x)!=null)by[q]={s:q,n:x.r.store,v:val(x),ts:x.r.ts}});m.sp=Object.values(by).sort((a,b)=>a.v-b.v);
+  const fv=m.e.slice().reverse().map(val).find(v=>v!=null);m.v0=fv==null?null:fv;m.d0=fv&&m.v!=null?(m.v-fv)/fv*100:0;m.sprd=m.min!=null&&m.min>0?(m.max-m.min)/m.min*100:0});
  const ok=mem.filter(m=>m.v!=null).sort((a,b)=>a.v-b.v),best=ok[0]||null,worst=ok[ok.length-1]||null;
  const sizes=new Set(mem.map(m=>{const p=pack(m.raw);return p?p.k+p.v:'w'}));
  return{c,mem,ord:ok.concat(mem.filter(m=>m.v==null)),uk,sfx:uk?'/'+uk:'',val,best,worst,mixed:!uk&&sizes.size>1,name:DN[c]||(mem[0]?mem[0].n:c),
-  da:best&&worst&&best!==worst?worst.v-best.v:0,dp:best&&worst&&best!==worst&&best.v>0?(worst.v-best.v)/best.v*100:0,up:Math.max(0,...mem.map(m=>m.dd))}}
+  da:best&&worst&&best!==worst?worst.v-best.v:0,dp:best&&worst&&best!==worst&&best.v>0?(worst.v-best.v)/best.v*100:0,up:Math.max(0,...mem.map(m=>m.dd)),dn:Math.min(0,...mem.map(m=>m.dd)),sp:Math.max(0,...mem.map(m=>m.sprd)),
+  var:mem.some(m=>m.sprd>0.49||(m.sp.length>1&&m.sp[m.sp.length-1].v-m.sp[0].v>0.005))}}
 const HVSC=['var(--acc)','#ea580c','#3b82f6','#d946ef','#eab308','#14b8a6'];
 function hvSpark(e,val){const E=e.filter(x=>val(x)!=null).slice().reverse();if(E.length<2)return'';
  const vs=E.map(val),mn=Math.min(...vs),mx=Math.max(...vs),sp=mx-mn||1,t0=E[0].r.ts,t1=E[E.length-1].r.ts,ts=t1-t0||1,st=[...new Set(E.map(x=>sk(x.r.store)))];
@@ -1162,6 +1165,7 @@ function hvMemWin(g,m,foc){const L=m.e[0],w=document.createElement('div'),ph=pho
  ${cmp?`<div style="margin-top:8px">${cmp}</div>`:''}
  <div style="margin-top:8px"><b class="m" style="font-size:16px">${lei(L.i.u)}</b>${L.up?` <span class="mute m">${lei(L.up.p)}/${L.up.k}</span>`:''}${ch}</div>
  <div class="mute" style="font-size:12px">${m.min!=null?`minim ${lei(m.min)}${sfx} · maxim ${lei(m.max)}${sfx} · `:''}${m.cnt} ${m.cnt>1?'cumpărări':'cumpărare'} · ${lei(m.spent)} lei</div>
+ ${m.sp.length>1?`<div class="mute" style="font-size:12px">Pe magazine: ${m.sp.map((x,i)=>`${i===0?'🏷 ':''}${esc(x.n)} ${lei(x.v)}${sfx}`).join(' · ')}</div>`:''}
  ${grp&&g.mixed?'<div class="mute" style="font-size:12px">Mărimi diferite: comparat pe bucată.</div>':''}
  ${hvSpark(m.e,g.val)}
  <h4>Cumpărări <span class="mute" style="font-weight:400">· apasă pe un cec</span></h4>${m.e.map(x=>`<div class="sr hvp" data-hvr="${esc(x.r.id)}"><div class="n">${dl(x.r.ts,{day:'numeric',month:'short',year:'numeric'})}<div class="mute" style="font-size:12px">${esc(x.r.store)} · ${x.i.q} × ${lei(x.i.u)}${x.up&&!x.up.w?' · '+lei(x.up.p)+'/'+x.up.k:''}</div></div><b class="m">${lei(x.i.t)}</b></div>`).join('')}`;
@@ -1201,23 +1205,31 @@ const paintHv=()=>document.querySelectorAll('#hvs [data-hv]').forEach(b=>b.class
 document.querySelectorAll('#hvs [data-hv]').forEach(b=>b.onclick=()=>{HVALL=b.dataset.hv==='1';localStorage.hvAll=HVALL?'1':'';paintHv();hvClose()});
 paintHv();$('#hvrow').style.display=hvOK()?'':'none';
 
-// ===== Statistici → Legate: comparații între produsele unite =====
-let lgq='',lgs='d';
+// ===== Statistici → Prețuri: produse unite și nelegate, cu scumpiri/ieftiniri =====
+let lgq='',lgs='d',lgf='a',lgv=true;
 function legate(m){m.innerHTML=svSeg();
- const ix=idxAll(),cs=[...new Set(Object.keys(META.links||{}).map(canon))],gs=cs.map(c=>grpData(c,ix)).filter(g=>g.mem.length>=2);
- if(!gs.length){m.insertAdjacentHTML('beforeend','<p class="mute">Aici apar produsele unite, comparate între ele: unde e mai ieftin, cu cât, scumpiri. Nu ai încă produse unite cu cumpărări.</p><button id="lgo" class="lkrow">🔗 Legături între produse</button>');$('#lgo').onclick=openLinks;bindSv(m);return}
- m.insertAdjacentHTML('beforeend',`${sbox('lgq','🔍 Caută în produsele legate',lgq)}
- <div class="row" style="align-items:center;margin:8px 0"><span class="mute" id="lgsum"></span><span class="pm" style="margin:0"><button class="mini ${lgs==='d'?'on':''}" data-lgs="d">Diferență</button><button class="mini ${lgs==='u'?'on':''}" data-lgs="u">Scumpiri</button><button class="mini ${lgs==='n'?'on':''}" data-lgs="n">A–Z</button></span></div><div id="lgl"></div>`);
- const draw=()=>{const q=key(lgq);let a=gs.filter(g=>!q||g.mem.some(x=>nameHit(x.raw,q))||key(g.name).includes(q));
-  a.sort(lgs==='n'?(x,y)=>x.name.localeCompare(y.name,'ro'):lgs==='u'?(x,y)=>y.up-x.up:(x,y)=>y.dp-x.dp);
-  $('#lgsum').textContent=a.length+(a.length===1?' grup':' grupuri');
+ const ix=idxAll(),cs=[...new Set(Object.keys(ix).map(canon))],gs=cs.map(c=>grpData(c,ix)).filter(g=>g.mem.length>=1);
+ if(!gs.length){m.insertAdjacentHTML('beforeend','<p class="mute">Aici apar produsele cu prețurile lor: scumpiri, ieftiniri, unde e mai ieftin. Apar după ce ai cecuri citite.</p>');bindSv(m);return}
+ m.insertAdjacentHTML('beforeend',`${sbox('lgq','🔍 Caută produs',lgq)}
+ <div class="row" style="align-items:center;margin:8px 0;flex-wrap:wrap;gap:6px"><span class="pm" style="margin:0"><button class="mini ${lgf==='a'?'on':''}" data-lgf="a">Toate</button><button class="mini ${lgf==='l'?'on':''}" data-lgf="l">Legate</button><button class="mini ${lgf==='n'?'on':''}" data-lgf="n">Nelegate</button></span>
+ <label class="mute" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="lgv" ${lgv?'checked':''}> doar cu preț schimbat</label></div>
+ <div class="row" style="align-items:center;margin:8px 0;flex-wrap:wrap;gap:6px"><span class="mute" id="lgsum"></span><span class="pm" style="margin:0"><button class="mini ${lgs==='d'?'on':''}" data-lgs="d">Diferență</button><button class="mini ${lgs==='u'?'on':''}" data-lgs="u">Scumpiri</button><button class="mini ${lgs==='i'?'on':''}" data-lgs="i">Ieftiniri</button><button class="mini ${lgs==='n'?'on':''}" data-lgs="n">A–Z</button></span></div><div id="lgl"></div>`);
+ const stl=(x,g)=>x.sp.length>1?x.sp.map((z,i)=>(i===0?'🏷 ':'')+esc(z.n)+' '+lei(z.v)+g.sfx).join(' · '):x.stores.map(esc).join(', ');
+ const row=(g,x,b)=>{const ph=pho(x.k,1)||pho(x.k),big=x.cnt>2&&Math.abs(x.d0)>=1&&x.v0!=null;
+  return`<div class="sr" data-pc="${esc(g.c)}" data-pm="${esc(x.k)}" data-hvp="${esc(x.k)}">${ph?`<img class="ph sm" src="${ph}">`:'<span class="ph sm"></span>'}<div class="n">${esc(x.n)}<div class="mute" style="font-size:12px">${stl(x,g)} · ${x.cnt} ${x.cnt>1?'cumpărări':'cumpărare'}</div>${x.sprd>0&&x.min!=null?`<div class="mute" style="font-size:12px">minim ${lei(x.min)}${g.sfx} · maxim ${lei(x.max)}${g.sfx}</div>`:''}</div><div style="text-align:right"><b class="m">${x.v!=null?lei(x.v)+g.sfx:lei(x.e[0].i.u)}</b>${x.v!=null&&b&&x!==b?`<div class="up" style="font-size:12px">+${((x.v-b.v)/b.v*100).toFixed(0)}% față de cel mai ieftin</div>`:''}${Math.abs(x.dd)>=1?`<div class="${x.dd>0?'up':'dn'}" style="font-size:12px">${x.dd>0?'▲ scumpire':'▼ ieftinire'} ${Math.abs(x.dd).toFixed(0)}% față de data trecută</div>`:''}${big?`<div class="mute" style="font-size:12px">de la ${lei(x.v0)}${g.sfx} la prima cumpărare (${x.d0>0?'+':''}${x.d0.toFixed(0)}%)</div>`:''}</div></div>`};
+ const draw=()=>{const q=key(lgq);let a=gs.filter(g=>(lgf==='a'||(lgf==='l'?g.mem.length>1:g.mem.length===1))&&(!lgv||g.var)&&(!q||g.mem.some(x=>nameHit(x.raw,q))||key(g.name).includes(q)));
+  a.sort(lgs==='n'?(x,y)=>x.name.localeCompare(y.name,'ro'):lgs==='u'?(x,y)=>y.up-x.up||y.dp-x.dp:lgs==='i'?(x,y)=>x.dn-y.dn||y.dp-x.dp:(x,y)=>Math.max(y.dp,y.sp)-Math.max(x.dp,x.sp));
+  $('#lgsum').textContent=a.length+(a.length===1?' produs':' produse');
   $('#lgl').innerHTML=a.length?a.map(g=>{const b=g.best;
-   return`<div class="card cg"><div class="row"><b>${esc(g.name)}</b><span class="mute">${g.mem.length} produse</span></div>
+   if(g.mem.length===1)return`<div class="card cg">${row(g,g.mem[0],null)}</div>`;
+   return`<div class="card cg"><div class="row"><b>${esc(g.name)}</b><span class="mute">${g.mem.length} produse unite</span></div>
    ${b?`<div style="margin:4px 0"><span class="dn"><b>🏷 ${esc(b.n)}</b></span> <span class="mute">· ${b.stores.map(esc).join(', ')} · </span><b class="m">${lei(b.v)}${g.sfx}</b></div>`:''}
    ${g.da>0?`<div class="mute" style="font-size:13px">Până la cel mai scump: <b>+${lei(g.da)}${g.sfx}</b> (${g.dp.toFixed(0)}%)${g.mixed?' · mărimi diferite, comparat pe bucată':''}</div>`:g.mixed?'<div class="mute" style="font-size:13px">Mărimi diferite, comparat pe bucată.</div>':''}
-   <div style="margin-top:6px">${g.ord.map(x=>{const ph=pho(x.k,1)||pho(x.k);return`<div class="sr" data-pc="${esc(g.c)}" data-pm="${esc(x.k)}" data-hvp="${esc(x.k)}">${ph?`<img class="ph sm" src="${ph}">`:'<span class="ph sm"></span>'}<div class="n">${esc(x.n)}<div class="mute" style="font-size:12px">${x.stores.map(esc).join(', ')} · ${x.cnt} ${x.cnt>1?'cumpărări':'cumpărare'}</div></div><div style="text-align:right"><b class="m">${x.v!=null?lei(x.v)+g.sfx:lei(x.e[0].i.u)}</b>${x.v!=null&&b&&x!==b?`<div class="up" style="font-size:12px">+${((x.v-b.v)/b.v*100).toFixed(0)}%</div>`:''}${Math.abs(x.dd)>=1?`<div class="${x.dd>0?'up':'dn'}" style="font-size:12px">${x.dd>0?'▲':'▼'} ${Math.abs(x.dd).toFixed(0)}% față de data trecută</div>`:''}</div></div>`}).join('')}</div></div>`}).join(''):'<div class="mute">Nimic găsit.</div>';
+   <div style="margin-top:6px">${g.ord.map(x=>row(g,x,b)).join('')}</div></div>`}).join(''):`<div class="mute">${lgv?'Nimic cu preț schimbat. Debifează „doar cu preț schimbat” ca să vezi toate produsele.':'Nimic găsit.'}</div>`;
   $('#lgl').querySelectorAll('[data-pm]').forEach(e=>e.onclick=()=>openProd(e.dataset.pc,e.dataset.pm))};
- m.querySelectorAll('[data-lgs]').forEach(b=>b.onclick=()=>{lgs=b.dataset.lgs;m.querySelectorAll('[data-lgs]').forEach(x=>x.classList.toggle('on',x===b));draw()});
+ const tog=(sel,attr,set)=>m.querySelectorAll(sel).forEach(b=>b.onclick=()=>{set(b.dataset[attr]);m.querySelectorAll(sel).forEach(x=>x.classList.toggle('on',x===b));draw()});
+ tog('[data-lgs]','lgs',v=>lgs=v);tog('[data-lgf]','lgf',v=>lgf=v);
+ $('#lgv').onchange=e=>{lgv=e.target.checked;draw()};
  $('#lgq').oninput=e=>{lgq=e.target.value;draw()};bindSb(m);bindSv(m);draw()}
 
 // ===== Poze la produse legate: aceleași sau separate =====
