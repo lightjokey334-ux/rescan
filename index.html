@@ -372,6 +372,13 @@ dialog#ad{width:min(92vw,420px);padding:14px 16px 12px}
   dialog#ad{width:min(90vw,480px)}
   dialog#ch{width:min(90vw,480px);padding:24px}
 }
+/* ===== v16: poze pentru produse legate ===== */
+dialog#ps{width:min(92vw,420px);padding:16px}
+#ps .psw{display:flex;gap:12px;align-items:flex-start;margin-top:14px}
+#ps .psw small{display:block;color:var(--mute);font-size:12px;margin-top:2px}
+#ps .psb{display:flex;flex:none}#ps .psb[data-pk]{cursor:pointer}
+#ps #ps-l{margin-top:8px;max-height:44vh;overflow-y:auto}
+#t button+button{margin-left:8px}
 </style></head><body>
 <aside class="sidebar" aria-label="Navigare principală">
   <div class="sbrand"><span aria-hidden="true">🧾</span> <span>Cecurile mele</span></div>
@@ -423,9 +430,12 @@ dialog#ad{width:min(92vw,420px);padding:14px 16px 12px}
 <button type="button" class="chb p" id="chc"><span class="ico" aria-hidden="true">📷</span><span class="lb"><b>Cu camera</b><small>Scanează codul QR de pe cec</small></span></button>
 <button type="button" class="chb" id="chm"><span class="ico" aria-hidden="true">✍️</span><span class="lb"><b>Introdu manual</b><small>Scrie produsele și prețurile</small></span></button>
 <div class="row" style="margin-top:12px;justify-content:flex-end"><button id="chx">Anulează</button></div></dialog>
+<dialog id="ps"><h2 style="margin:0 0 4px;font-size:20px">Poze la produsele legate</h2><div id="ps-h" class="mute" style="font-size:13px"></div><div id="ps-l"></div>
+<label class="psw"><input type="checkbox" id="ps-c"><span><b>Aceeași poză pentru toate</b><small>Debifează dacă ambalajul arată diferit (ex. gramaje diferite). Prețurile și istoricul rămân unite.</small></span></label>
+<div class="row" style="margin-top:14px;justify-content:flex-end"><button id="ps-x" class="p">Gata</button></div></dialog>
 <script>
 const $=s=>document.querySelector(s);const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,lastErr={},retrying=0,ed=null,sq='',sv='s',META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{}};
+let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,lastErr={},retrying=0,ed=null,sq='',sv='s',META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{},sep:[]};
 const navigationState=()=>({checkScanner:true,tab,receiptId:cur>=0&&R[cur]?R[cur].id:null,prod,editing:!!ed});
 const pushNavigation=()=>history.pushState(navigationState(),'');
 function openReceipt(i){const changed=tab!=='r'||cur!==i||prod!==null;tab='r';prod=null;cur=i;ed=null;if(changed)pushNavigation();show()}
@@ -433,10 +443,10 @@ addEventListener('popstate',e=>{const s=e.state;if(!s||!s.checkScanner){tab='r';
  tab=s.tab==='s'?'s':s.tab==='l'?'l':'r';prod=s.prod||null;cur=s.receiptId?R.findIndex(r=>r.id===s.receiptId):-1;ed=s.editing&&cur>=0?JSON.parse(JSON.stringify(R[cur])):null;show()});
 history.replaceState(navigationState(),'');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const toast=(s,act,fn)=>{const t=$('#t');t.textContent=s;if(act){const b=document.createElement('button');b.textContent=act;b.style.cssText='margin-left:12px;border-color:var(--bg);color:var(--bg);padding:4px 10px';b.onclick=()=>{t.classList.remove('on');fn()};t.append(b)}
+const toast=(s,act,fn,act2,fn2)=>{const t=$('#t');t.textContent=s;[[act,fn],[act2,fn2]].forEach(([a,f])=>{if(!a)return;const b=document.createElement('button');b.textContent=a;b.style.cssText='margin-left:10px;border-color:var(--bg);color:var(--bg);padding:4px 10px';b.onclick=()=>{t.classList.remove('on');f()};t.append(b)});
  clearTimeout(t.i);clearTimeout(t.h);
  try{if(t.showPopover){if(t.matches(':popover-open'))t.hidePopover();t.showPopover()}else(document.querySelector('dialog[open]')||document.body).append(t)}catch(e){}
- t.classList.add('on');t.i=setTimeout(()=>{t.classList.remove('on');t.h=setTimeout(()=>{try{t.hidePopover&&t.hidePopover()}catch(e){}},450)},act?7000:Math.min(12000,Math.max(4000,s.length*65)))};
+ t.classList.add('on');t.i=setTimeout(()=>{t.classList.remove('on');t.h=setTimeout(()=>{try{t.hidePopover&&t.hidePopover()}catch(e){}},450)},act?(act2?10000:7000):Math.min(12000,Math.max(4000,s.length*65)))};
 const idb=n=>new Promise((ok,er)=>{const q=indexedDB.open(n,2);q.onupgradeneeded=()=>{const d=q.result;['r','p','pt'].forEach(x=>{if(!d.objectStoreNames.contains(x))d.createObjectStore(x,{keyPath:x==='r'?'id':'k'})})};q.onsuccess=()=>ok(q.result);q.onerror=er});
 const tx=(s,m,f)=>new Promise((ok,er)=>{const t=db.transaction(s,m),r=f(t.objectStore(s));t.oncomplete=()=>ok(r.result);t.onerror=e=>er(t.error||(e&&e.target&&e.target.error)||e);t.onabort=()=>er(t.error||new DOMException('Tranzacție anulată','AbortError'))});
 const dn=n=>(META.alias&&META.alias[key(n)])||n;
@@ -448,18 +458,23 @@ async function fillThumbs(){if(thBusy)return;thBusy=1;let n=0;try{
  for(const k of await tx('p','readonly',o=>o.getAllKeys())){if(P[k])continue;const r=await tx('p','readonly',o=>o.get(k));if(!r||!r.img)continue;
   try{const t=await thumb(r.img);await tx('pt','readwrite',o=>o.put({k,t}));P[k]=t;if(!n++)toast('Optimizez pozele (o singură dată)…')}catch(e){}}
  }finally{thBusy=0}if(n&&!ed&&!document.querySelector('dialog[open]'))show('none')}
-async function load(){const all=await tx('r','readonly',o=>o.getAll()),mt=all.find(r=>r.id==='__meta__');META={cats:(mt&&mt.cats)||{},shop:(mt&&mt.shop)||[],budget:(mt&&mt.budget)||0,links:(mt&&mt.links)||{},pinned:(mt&&mt.pinned)||[],no:(mt&&mt.no)||[],alias:(mt&&mt.alias)||{}};R=all.filter(r=>!r.deleted&&r.id!=='__meta__').sort((a,b)=>b.ts-a.ts);P={};(await tx('pt','readonly',o=>o.getAll())).forEach(x=>{if(x.t)P[x.k]=x.t});buildGR();fillThumbs()}
+async function load(){const all=await tx('r','readonly',o=>o.getAll()),mt=all.find(r=>r.id==='__meta__');META={cats:(mt&&mt.cats)||{},shop:(mt&&mt.shop)||[],budget:(mt&&mt.budget)||0,links:(mt&&mt.links)||{},pinned:(mt&&mt.pinned)||[],no:(mt&&mt.no)||[],alias:(mt&&mt.alias)||{},sep:(mt&&mt.sep)||[]};R=all.filter(r=>!r.deleted&&r.id!=='__meta__').sort((a,b)=>b.ts-a.ts);P={};(await tx('pt','readonly',o=>o.getAll())).forEach(x=>{if(x.t)P[x.k]=x.t});buildGR();fillThumbs()}
 const save=r=>{r.u=Date.now();return tx('r','readwrite',o=>o.put(r)).then(()=>sync())};
 
 // ===== Legături între produse (alias -> produs principal) =====
 const sk=s=>key(s||'');
 const canon=k=>{let c=k,n=0;while(META.links&&META.links[c]&&n++<30)c=META.links[c];return c};
 const ck=n=>canon(key(n));
-let GR={},DN={};
-function buildGR(){GR={};DN={};const L=META.links||{};for(const a in L){const c=canon(a);(GR[c]=GR[c]||[]).push(a)}
+let GR={},DN={},SEP=new Set();
+function buildGR(){GR={};DN={};SEP=new Set(META.sep||[]);const L=META.links||{};for(const a in L){const c=canon(a);(GR[c]=GR[c]||[]).push(a)}
  R.forEach(r=>r.items.forEach(i=>{const k=key(i.n);if(!(k in DN))DN[k]=i.n}));for(const k in (META.alias||{}))DN[k]=META.alias[k]}
 const nmOf=(k,f)=>DN[k]||f||k;
-const pho=k=>{const c=canon(k);if(P[c])return P[c];for(const x of GR[c]||[])if(P[x])return P[x];return''};
+// own=1: poza proprie a produsului (dacă are „poze separate”, nu se împrumută de la cele legate)
+const pho=(k,own)=>{if(own&&SEP.has(k))return P[k]||'';const c=canon(k);if(P[c])return P[c];for(const x of GR[c]||[])if(P[x]&&!(own&&SEP.has(x)))return P[x];return''};
+const phk=k=>SEP.has(k)?k:canon(k);
+const grpOf=k=>{const c=canon(k);return[c,...(GR[c]||[])]};
+const sepAll=k=>grpOf(k).every(x=>SEP.has(x));
+const nameHit=(raw,q)=>{const k=key(raw),c=canon(k);return k.includes(q)||key(dn(raw)).includes(q)||c.includes(q)||key(nmOf(c,raw)).includes(q)};
 const pairId=(a,b)=>a<b?a+'|'+b:b+'|'+a;
 // ===== Preț pe litru / kg =====
 function pack(n){const s=n.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/,/g,'.');
@@ -513,14 +528,14 @@ let pcat=null,psort='t',pq='';
 function produse(m){
  const rs=R.filter(r=>!r.pending);m.innerHTML=svSeg();
  if(!rs.length){m.insertAdjacentHTML('beforeend','<p class="mute">Produsele apar după ce ai cecuri citite.</p>');bindSv(m);return}
- const P0={};rs.forEach(r=>r.items.forEach(i=>{const k=ck(i.n),o=P0[k]=P0[k]||{k,n:nmOf(k,i.n),c:0,t:0,ts:0,u:0,up:null,cat:cat(k)};o.c++;o.t+=i.t;if(r.ts>=o.ts){o.ts=r.ts;o.u=i.u;o.up=unitP(i.n,i.q,i.u,i.un)}}));
+ const P0={};rs.forEach(r=>r.items.forEach(i=>{const k=ck(i.n),o=P0[k]=P0[k]||{k,n:nmOf(k,i.n),c:0,t:0,ts:0,u:0,up:null,cat:cat(k),hs:new Set()};o.hs.add(key(i.n));o.hs.add(key(dn(i.n)));o.c++;o.t+=i.t;if(r.ts>=o.ts){o.ts=r.ts;o.u=i.u;o.up=unitP(i.n,i.q,i.u,i.un)}}));
  const all=Object.values(P0),cc={};all.forEach(o=>cc[o.cat]=(cc[o.cat]||0)+1);
  const cats=Object.entries(cc).sort((a,b)=>b[1]-a[1]);if(pcat&&!cc[pcat])pcat=null;
  m.insertAdjacentHTML('beforeend',`<div class="dd" id="pdd"><button type="button" class="ddb" id="pddb" aria-haspopup="listbox" aria-expanded="false"><span id="pddl">${pcat?esc(pcat)+' · '+cc[pcat]:'Toate categoriile · '+all.length}</span><span class="car">▾</span></button><div class="ddp" role="listbox"><button type="button" class="ddo ${pcat?'':'on'}" data-pc=""><span>Toate categoriile</span><span class="mute">${all.length}</span></button>${cats.map(([c,n])=>`<button type="button" class="ddo ${pcat===c?'on':''}" data-pc="${esc(c)}"><span>${esc(c)}</span><span class="mute">${n}</span></button>`).join('')}</div></div>
  ${sbox('pq','🔍 Caută în produse',pq)}
  <div class="row" style="align-items:center;margin:8px 0"><span class="mute" id="psum"></span><span class="pm" style="margin:0"><button class="mini ${psort==='t'?'on':''}" data-ps="t">Cheltuit</button><button class="mini ${psort==='r'?'on':''}" data-ps="r">Recent</button><button class="mini ${psort==='n'?'on':''}" data-ps="n">A–Z</button></span></div>
  <div class="card" id="pl"></div>`);
- const draw=anim=>{const q=key(pq);const a=all.filter(o=>(!pcat||o.cat===pcat)&&(!q||key(o.n).includes(q)||o.k.includes(q)));
+ const draw=anim=>{const q=key(pq);const a=all.filter(o=>(!pcat||o.cat===pcat)&&(!q||key(o.n).includes(q)||o.k.includes(q)||[...o.hs].some(x=>x.includes(q))));
   a.sort(psort==='n'?(x,y)=>x.n.localeCompare(y.n,'ro'):psort==='r'?(x,y)=>y.ts-x.ts:(x,y)=>y.t-x.t);
   $('#psum').textContent=a.length+(a.length===1?' produs':' produse')+' · '+Math.round(a.reduce((s,o)=>s+o.t,0))+' lei';
   const pl=$('#pl');pl.innerHTML=a.length?a.map(o=>row(o,o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+lei(o.u)+(o.up?' · '+lei(o.up.p)+'/'+o.up.k:''),lei(o.t))).join(''):'<div class="mute">Nimic găsit.</div>';
@@ -564,8 +579,8 @@ function bkBind(){const b=$('#bkb');if(!b)return;const out=()=>{b.classList.add(
  $('#bkl').onclick=()=>{localStorage.bkSnooze=Date.now()+14*864e5;out()};
  $('#bkn').onclick=()=>{$('#ex').click();out()}}
 
-const snapMeta=()=>JSON.stringify({l:META.links,n:META.no});
-const undoTo=(sn,fn)=>async()=>{const o=JSON.parse(sn);META.links=o.l;META.no=o.n;await saveMeta();buildGR();(fn||(()=>linksView($('#m'))))()};
+const snapMeta=()=>JSON.stringify({l:META.links,n:META.no,s:META.sep});
+const undoTo=(sn,fn)=>async()=>{const o=JSON.parse(sn);META.links=o.l;META.no=o.n;META.sep=o.s||[];await saveMeta();buildGR();(fn||(()=>linksView($('#m'))))()};
 addEventListener('keydown',e=>{if(e.key==='Escape'&&lk&&lk.sel){lk.sel=null;paintSel()}});
 
 const isLinked=k=>{const c=canon(k);return c!==k||(GR[c]||[]).length>0};
@@ -573,6 +588,7 @@ async function mkLink(a,b){const ca=canon(a),cb=canon(b);if(ca===cb)return false
  const keep=(P[cb]&&!P[ca])?cb:ca,drop=keep===ca?cb:ca;META.links=META.links||{};
  [drop,...(GR[drop]||[])].forEach(x=>META.links[x]=keep);
  if(META.cats[drop]&&!META.cats[keep])META.cats[keep]=META.cats[drop];
+ if(SEP.has(ca)||SEP.has(cb)){META.sep=META.sep||[];[keep,...Object.keys(META.links).filter(x=>canon(x)===keep)].forEach(x=>{if(!META.sep.includes(x))META.sep.push(x)})}
  await saveMeta();buildGR();return true}
 async function rmLink(k){const c=canon(k),mem=(GR[c]||[]).slice();META.no=META.no||[];
  if(c===k){if(!mem.length)return;const nc=mem[0];mem.slice(1).forEach(x=>META.links[x]=nc);delete META.links[nc];mem.forEach(x=>META.no.push(pairId(k,x)))}
@@ -627,10 +643,10 @@ function paintSel(){const gi=$('#lgi'),bar=$('#lbar');if(!gi||!bar)return;
  gi.querySelectorAll('.lc').forEach(e=>e.classList.toggle('sel',e.dataset.k===lk.sel));
  if(!lk.sel){bar.style.display='none';return}
  bar.style.display='flex';
- bar.innerHTML=`<span style="min-width:0">${esc(nmOf(lk.sel))}<br><small>Atinge alt produs ca să le legi</small></span><span style="display:flex;gap:8px">${isLinked(lk.sel)?'<button id="lu">Dezleagă</button>':''}<button id="lx">✕</button></span>`;
+ bar.innerHTML=`<span style="min-width:0">${esc(nmOf(lk.sel))}<br><small>Atinge alt produs ca să le legi</small></span><span style="display:flex;gap:8px">${isLinked(lk.sel)?'<button id="lpz" title="Poze">🖼</button><button id="lu">Dezleagă</button>':''}<button id="lx">✕</button></span>`;
  $('#lx').onclick=()=>{lk.sel=null;paintSel()};
- if($('#lu'))$('#lu').onclick=async()=>{const k=lk.sel;lk.sel=null;const sn=snapMeta();await rmLink(k);toast('Dezlegat','Anulează',undoTo(sn));linksView($('#m'))}}
-async function doLink(a,b){lk.sel=null;const sn=snapMeta();if(await mkLink(a,b)){lk.fresh=canon(a);lk.t=Date.now();buzz();toast('Legat ✓ — pozele și istoricul se unesc','Anulează',undoTo(sn))}else toast('Sunt deja legate.');linksView($('#m'))}
+ if($('#lpz'))$('#lpz').onclick=()=>openPhotoSync(lk.sel);if($('#lu'))$('#lu').onclick=async()=>{const k=lk.sel;lk.sel=null;const sn=snapMeta();await rmLink(k);toast('Dezlegat','Anulează',undoTo(sn));linksView($('#m'))}}
+async function doLink(a,b){lk.sel=null;const sn=snapMeta();if(await mkLink(a,b)){lk.fresh=canon(a);lk.t=Date.now();buzz();toast('Legat ✓ — pozele și istoricul se unesc','Anulează',undoTo(sn),'🖼 Poze',()=>openPhotoSync(a))}else toast('Sunt deja legate.');linksView($('#m'))}
 function tapCell(k){if(!lk.sel){lk.sel=k;return paintSel()}if(lk.sel===k){lk.sel=null;return paintSel()}const a=lk.sel;lk.sel=null;doLink(a,k)}
 function dragBind(dot,cell){let on=0,tp=null,iv=null,px=0,py=0,hv=null;const gi=$('#lgi'),sg=$('#lgs');
  const upd=()=>{if(!tp)return;const b=gi.getBoundingClientRect(),r=cell.getBoundingClientRect(),rt=dot.classList.contains('r'),
@@ -652,7 +668,7 @@ function linksView(m){
  const all=Object.values(S0).sort((a,b)=>b.c-a.c);
  let pins=(META.pinned||[]).filter(s=>S0[s]);if(!pins.length)pins=all.slice(0,2).map(o=>o.s);
  const lim=innerWidth<600?2:4,n=pins.length,sug=suggest().filter(x=>[...x.a.st].some(s=>pins.includes(s))&&[...x.b.st].some(s=>pins.includes(s)));
- const sgi=o=>`<div class="sgi">${pho(o.k)?`<img class="ph" src="${pho(o.k)}">`:'<span class="ph"></span>'}<div><div class="nn">${esc(o.n)}</div><div class="mute" style="font-size:12px">${esc(o.sn)} · ${lei(o.u)}</div></div></div>`;
+ const sgi=o=>`<div class="sgi">${pho(o.k,1)?`<img class="ph" decoding="async" src="${pho(o.k,1)}">`:'<span class="ph"></span>'}<div><div class="nn">${esc(o.n)}</div><div class="mute" style="font-size:12px">${esc(o.sn)} · ${lei(o.u)}</div></div></div>`;
  m.insertAdjacentHTML('beforeend',`<div class="card"><b>Magazine</b><div class="mute">Alege ce magazine compari. Ordinea bifării = ordinea coloanelor.</div>
  <div class="chips">${all.map(o=>`<button class="chip ${pins.includes(o.s)?'on':''}" data-chip="${esc(o.s)}">${esc(o.n)} · ${o.c}</button>`).join('')}</div></div>
  ${sug.length?`<div class="card"><b>Sugestii automate (${sug.length})</b><div class="mute">Aceleași produse, nume diferite. Confirmă doar ce e corect.</div>
@@ -665,11 +681,11 @@ function linksView(m){
   rs.slice().reverse().forEach(r=>{const s=sk(r.store);if(!nd[s])return;r.items.forEach(i=>{const k=key(i.n),o=nd[s][k]=nd[s][k]||{k};o.n=dn(i.n);o.raw=i.n;o.u=i.u;o.q=i.q;o.un=i.un})});
   pins.forEach(s=>Object.keys(nd[s]).forEach(k=>cnt[k]=(cnt[k]||0)+1));
   const cols=pins.map(s=>{let a=Object.values(nd[s]);
-   if(q)a=a.filter(o=>o.k.includes(q)||canon(o.k).includes(q));
+   if(q)a=a.filter(o=>nameHit(o.raw,q));
    if(lk.un)a=a.filter(o=>!isLinked(o.k)&&cnt[o.k]<2);
    a.sort((x,y)=>{const p=key(x.n),q=key(y.n);return p<q?-1:p>q?1:0});return{s,n:S0[s].n,a}});
-  const cell=(o,ci)=>{const up=unitP(o.raw,o.q,o.u,o.un),c=canon(o.k),g=isLinked(o.k)||cnt[o.k]>1,ph=pho(o.k),last=ci===n-1&&n>1;
-   return`<div class="lc${last?' dl':''}" data-k="${esc(o.k)}" data-c="${esc(c)}" data-col="${ci}"${g?` style="border-left-color:${hc(c)}"`:''}>${ph?`<img class="ph" src="${ph}">`:''}<div class="tx"><div class="nn">${esc(o.n)}</div><div class="pr"><span class="m">${lei(o.u)}</span><button class="inf" title="Istoric preț">📈</button></div>${up?`<div class="up m">${lei(up.p)}/${up.k}</div>`:''}</div><button class="dot ${last?'l':'r'}" aria-label="Trage o linie spre alt produs"></button></div>`};
+  const cell=(o,ci)=>{const up=unitP(o.raw,o.q,o.u,o.un),c=canon(o.k),g=isLinked(o.k)||cnt[o.k]>1,ph=pho(o.k,1),last=ci===n-1&&n>1;
+   return`<div class="lc${last?' dl':''}" data-k="${esc(o.k)}" data-c="${esc(c)}" data-col="${ci}"${g?` style="border-left-color:${hc(c)}"`:''}>${ph?`<img class="ph" decoding="async" src="${ph}">`:'<span class="ph"></span>'}<div class="tx"><div class="nn">${esc(o.n)}</div><div class="pr"><span class="m">${lei(o.u)}</span><button class="inf" title="Istoric preț">📈</button></div>${up?`<div class="up m">${lei(up.p)}/${up.k}</div>`:''}</div><button class="dot ${last?'l':'r'}" aria-label="Trage o linie spre alt produs"></button></div>`};
   $('#lgi').classList.toggle('one',n<2);$('#lgc').style.gridTemplateColumns=`repeat(${n},minmax(0,1fr))`;$('#lgi').style.minWidth=(n*140+(n-1)*46)+'px';
   $('#lgc').innerHTML=cols.map((c,ci)=>`<div class="lcol"><div class="lgh">${esc(c.n)} <span class="mute" style="font-weight:400">· ${c.a.length}</span></div>${c.a.map(o=>cell(o,ci)).join('')||'<div class="mute">Nimic de arătat.</div>'}</div>`).join('');
   $('#lgi').querySelectorAll('.lc').forEach(e=>{
@@ -678,10 +694,10 @@ function linksView(m){
    dragBind(e.querySelector('.dot'),e)});
   lines();paintSel()}
  m.querySelectorAll('[data-chip]').forEach(b=>b.onclick=()=>{const s=b.dataset.chip;META.pinned=pins.includes(s)?pins.filter(x=>x!==s):[...pins,s];saveMeta();lk.sel=null;linksView(m)});
- m.querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{const x=sug[+b.dataset.ok];const sn=snapMeta();await mkLink(x.a.k,x.b.k);lk.fresh=canon(x.a.k);lk.t=Date.now();buzz();toast('Legat ✓','Anulează',undoTo(sn,()=>linksView(m)));linksView(m)});
+ m.querySelectorAll('[data-ok]').forEach(b=>b.onclick=async()=>{const x=sug[+b.dataset.ok];const sn=snapMeta();await mkLink(x.a.k,x.b.k);lk.fresh=canon(x.a.k);lk.t=Date.now();buzz();toast('Legat ✓','Anulează',undoTo(sn,()=>linksView(m)),'🖼 Poze',()=>openPhotoSync(x.a.k));linksView(m)});
  m.querySelectorAll('[data-no]').forEach(b=>b.onclick=async()=>{const x=sug[+b.dataset.no];(META.no=META.no||[]).push(x.id);await saveMeta();linksView(m)});
  if($('#smore'))$('#smore').onclick=()=>{lk.more=!lk.more;linksView(m)};
- bindSb(m);$('#lq').oninput=e=>{lk.q=e.target.value;grid()};$('#lun').onchange=e=>{lk.un=e.target.checked;grid()};
+ bindSb(m);$('#lq').oninput=e=>{lk.q=e.target.value;clearTimeout(lk.tm);lk.tm=setTimeout(grid,120)};$('#lun').onchange=e=>{lk.un=e.target.checked;grid()};
  bindSv(m);grid();
  if('ResizeObserver'in window){lro=new ResizeObserver(()=>lines());lro.observe($('#lgi'))}}
 
@@ -738,7 +754,7 @@ function show(force){const nv=vstate(),pv=prevV,dir=pv&&force!=='none'?(force||v
  else{run();const m=$('#m');m.classList.remove('in-fwd','in-back','in-fade','in-deck-l','in-deck-r');void m.offsetWidth;m.classList.add('in-'+dir)}}
 const rUnit=i=>i.un?`${+i.q} ${i.un} × ${lei(i.u)}/${i.un}`:`${i.q} × ${lei(i.u)}`;
 const rPend=r=>r.pending?'<p>Produsele nu au fost încă citite.'+((r.err||lastErr[r.id])?'<br><span class="mute cp">Motiv: '+esc(r.err||lastErr[r.id])+'</span>':'')+(r.link?'<br><span class="mute m cp" style="word-break:break-all;font-size:12px">'+esc(r.link)+'</span>':'')+'</p><button id="rt" class="p">Încearcă din nou</button> <button id="pt">Lipește textul</button>':'';
-const rItems=r=>r.items.map((i,j)=>{const k=ck(i.n),ph=pho(k),al=META.alias&&META.alias[key(i.n)];return`<div class="it"><${ph?`img class="ph" src="${ph}"`:'button class="ph"'} data-k="${esc(k)}">${ph?'':'+'}</${ph?'img':'button'}><div class="n" data-p="${esc(k)}">${esc(al||i.n)}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(i.n)}</div>`:''}<div class="mute m">${rUnit(i)}</div></div><button class="ed" data-al="${j}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button><span class="m">${lei(i.t)}</span></div>`}).join('');
+const rItems=r=>r.items.map((i,j)=>{const k=ck(i.n),rk=key(i.n),ph=pho(rk,1),al=META.alias&&META.alias[key(i.n)];return`<div class="it"><${ph?`img class="ph" src="${ph}"`:'button class="ph"'} data-k="${esc(rk)}">${ph?'':'+'}</${ph?'img':'button'}><div class="n" data-p="${esc(k)}">${esc(al||i.n)}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(i.n)}</div>`:''}<div class="mute m">${rUnit(i)}</div></div><button class="ed" data-al="${j}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button><span class="m">${lei(i.t)}</span></div>`}).join('');
 const rTotal=r=>`<div class="row" style="margin-top:10px"><span>Total</span><span class="tot m cp">${lei(r.total)}</span></div>`;
 const rcardHtml=r=>`<div class="card" id="rcard"><button id="eb" style="float:right;padding:4px 10px">✎ Editează</button><b>${esc(r.store)}</b>${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️ manual</span>':''}<div class="mute">${fmt(r)}${r.no?' · bon №<span class="cp">'+esc(r.no)+'</span>':''}</div>${rPend(r)}
  ${rItems(r)}
@@ -760,7 +776,7 @@ function _show(){const m=$('#m');m.classList.remove('screen-in','wide');m.onpoin
  if($('#rt'))$('#rt').onclick=async()=>{toast('Se încearcă...');await retry();const x=R.find(y=>y.id===r.id);if(x&&x.pending)toast('Încă nu merge. Verifică internetul sau proxy-ul.')};
  m.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>zoom(e.dataset.k));bindAl(m,r);bind(m);deckBind(m)}
 const mh=i=>{const f=x=>new Date(R[x].ts).toLocaleDateString('ro-RO',{month:'long',year:'numeric'});return i&&f(i)===f(i-1)?'':'<h3 class="mute" style="margin:14px 0 8px;text-transform:capitalize">'+f(i)+'</h3>'};
-const zoom=async k=>{pk=k;const im=pho(k);if(!im)return $('#pf').click();const c=canon(k);let f='';for(const x of [c,...(GR[c]||[])]){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img){f=r.img;break}}$('#li').src=f||im;$('#lb').hidden=false};
+const zoom=async k=>{pk=phk(k);const im=pho(k,1);if(!im)return $('#pf').click();const c=canon(k);let f='';for(const x of (SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))])){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img){f=r.img;break}}$('#li').src=f||im;$('#lb').hidden=false};
 const bind=m=>{m.querySelectorAll('[data-ph]').forEach(e=>e.onclick=()=>zoom(e.dataset.ph));m.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>openProd(e.dataset.p))};
 const dl=(d,o)=>new Date(d).toLocaleDateString('ro-RO',o),D0=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
 function range(){const d=new Date(pd);if(sm==='m'){const a=new Date(d.getFullYear(),d.getMonth(),1);return[a,new Date(a.getFullYear(),a.getMonth()+1,1)]}
@@ -824,28 +840,29 @@ function product(m){prod=canon(prod);const k=prod,e=[];
  ${canU&&!allW?`<div class="pm"><button data-pu="b" class="${mode==='b'?'on':''}">Pe bucată</button><button data-pu="u" class="${mode==='u'?'on':''}">Pe ${uk==='L'?'litru':'kg'}</button></div>`:''}
  ${E.length>1?`<svg viewBox="0 0 300 70" style="width:100%;height:80px;margin-top:6px">${ser.map(z=>`<polyline points="${z.pts.map(p=>p.join(',')).join(' ')}" fill="none" style="stroke:${z.c}" stroke-width="2"/>${z.pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" style="fill:${z.c}"/>`).join('')}`).join('')}</svg>`:''}
  ${ser.length>1?`<div class="mute" style="display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px">${ser.map(z=>`<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${z.c}"></i> ${esc(z.n)} ${lei(z.l)}${sfx}</span>`).join('')}</div>`:''}</div>
- ${names.length>1?`<h3 class="sec">Nume unite</h3><div class="card">${names.map(o=>`<div class="sr"><div class="n">${esc(dn(o.n))}${dn(o.n)!==o.n?` <span class="mute">(pe cec: ${esc(o.n)})</span>`:''}${o.k===k?' <span class="mute">★ principal</span>':''}<div class="mute">${[...o.s].map(esc).join(', ')}</div></div><button class="ed" data-alr="${esc(o.n)}" aria-label="Nume alternativ">✏️</button> ${o.k===k?'':`<button data-mn="${esc(o.k)}" title="Fă-l numele principal">★</button> `}<button data-ul="${esc(o.k)}">Dezleagă</button></div>`).join('')}</div>`:''}
+ ${names.length>1?`<h3 class="sec">Nume unite</h3><div class="card">${names.map(o=>`<div class="sr"><div class="n">${esc(dn(o.n))}${dn(o.n)!==o.n?` <span class="mute">(pe cec: ${esc(o.n)})</span>`:''}${o.k===k?' <span class="mute">★ principal</span>':''}<div class="mute">${[...o.s].map(esc).join(', ')}</div></div><button class="ed" data-alr="${esc(o.n)}" aria-label="Nume alternativ">✏️</button> ${o.k===k?'':`<button data-mn="${esc(o.k)}" title="Fă-l numele principal">★</button> `}<button data-ul="${esc(o.k)}">Dezleagă</button></div>`).join('')}<button class="lkrow" data-ps="${esc(k)}">🖼 Poze: ${sepAll(k)?'separate pentru fiecare':'aceleași pentru toate'}<span class="mute">Schimbă dacă ambalajele arată diferit</span></button></div>`:''}
  <h3 class="sec">Când l-ai cumpărat</h3><div class="card">${e.map(x=>`<div class="sr" data-r="${esc(x.r.id)}" style="cursor:pointer"><div class="n">${dl(x.r.ts,{day:'numeric',month:'long',year:'numeric'})}<div class="mute">${esc(x.r.store)} · ${x.i.q} × ${lei(x.i.u)}${x.up&&!x.up.w?' · '+lei(x.up.p)+'/'+x.up.k:''}</div></div><b class="m">${lei(x.i.t)}</b></div>`).join('')}</div>`;
  $('#pc').onchange=ev=>{META.cats[k]=ev.target.value;saveMeta()};
  $('#pb').onclick=()=>history.back();
  m.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>{pu=b.dataset.pu;product(m)});m.querySelectorAll('[data-alr]').forEach(b=>b.onclick=()=>openAlias(b.dataset.alr));
  m.querySelectorAll('[data-ul]').forEach(b=>b.onclick=async()=>{const sn=snapMeta();await rmLink(b.dataset.ul);toast('Dezlegat','Anulează',undoTo(sn,()=>product(m)));product(m)});
  m.querySelectorAll('[data-mn]').forEach(b=>b.onclick=async()=>{await setMain(b.dataset.mn);product(m)});
- m.querySelectorAll('[data-r]').forEach(el=>el.onclick=()=>{const ix=R.findIndex(r=>r.id===el.dataset.r);if(ix>=0)openReceipt(ix)});bind(m)}
+ m.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>openPhotoSync(b.dataset.ps));m.querySelectorAll('[data-r]').forEach(el=>el.onclick=()=>{const ix=R.findIndex(r=>r.id===el.dataset.r);if(ix>=0)openReceipt(ix)});bind(m)}
 const CATS=['Lactate și ouă','Pâine și patiserie','Fructe și legume','Carne și pește','Băuturi','Dulciuri și snacks','Curățenie și casă','Igienă','Altele'];
 const KW=[['Lactate și ouă','lapte chefir iaurt branza smantana unt telemea kefir cascaval ricotta oua'],['Pâine și patiserie','paine franzela chifla covrig placinta tort corn lipie'],['Fructe și legume','mere banane rosii castravet cartof ceapa morcov varza lamai portocal struguri fructe legume salata'],['Carne și pește','carne pui pulpe carnat peste salam pelmeni cirnat sunca piept cotlet macrou'],['Băuturi','apa suc bere vin cafea ceai cola limonada vodca'],['Dulciuri și snacks','ciocolata napolitane biscuiti bomboane seminte chipsuri inghetata drajeu nuci covrigei'],['Curățenie și casă','detergent sapun hartie punga saci burete praf servetele'],['Igienă','pasta dinti sampon deodorant periuta absorbante']];
 const guess=k=>{const w=k.split(' ');for(const[c,l]of KW)if(l.split(' ').some(x=>w.some(y=>y.startsWith(x))))return c;return'Altele'};
 const cat=k=>META.cats[canon(k)]||META.cats[k]||guess(META.alias&&META.alias[k]?key(META.alias[k]):k);
-const saveMeta=()=>save({id:'__meta__',cats:META.cats,shop:META.shop,budget:META.budget,links:META.links,pinned:META.pinned,no:META.no,alias:META.alias,ts:0,items:[]});
+const metaRec=()=>({id:'__meta__',cats:META.cats,shop:META.shop,budget:META.budget,links:META.links,pinned:META.pinned,no:META.no,alias:META.alias,sep:META.sep||[],ts:0,items:[]});
+const saveMeta=()=>save(metaRec());
 const svSeg=()=>`<div class="seg"><button data-sv="s" class="${sv==='s'?'on':''}">Rezumat</button><button data-sv="p" class="${sv==='p'?'on':''}">Produse</button><button data-sv="i" class="${sv==='i'?'on':''}">Idei</button></div>`;
 const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{sv=e.dataset.sv;show()});
-const card=(r,i)=>{const dr=rview==='drop',op=dr&&dropId===r.id;return`<div class="card${op?' open':''}" data-i="${i}"><div class="row"><b>${esc(r.store)}${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️</span>':''}</b><span class="m tot" style="font-size:18px">${lei(r.total)}</span></div><div class="mute">${fmt(r)} · ${r.items.length} produse${dr?'<span class="chev">▾</span>':''}</div>${op?'':`<div class="th">${r.items.slice(0,6).map(x=>pho(ck(x.n))?`<img src="${pho(ck(x.n))}" decoding="async">`:'').join('')}</div>`}${op?rdd(r):''}</div>`};
+const card=(r,i)=>{const dr=rview==='drop',op=dr&&dropId===r.id;return`<div class="card${op?' open':''}" data-i="${i}"><div class="row"><b>${esc(r.store)}${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️</span>':''}</b><span class="m tot" style="font-size:18px">${lei(r.total)}</span></div><div class="mute">${fmt(r)} · ${r.items.length} produse${dr?'<span class="chev">▾</span>':''}</div>${op?'':`<div class="th">${r.items.slice(0,6).map(x=>{const p=pho(key(x.n),1);return p?`<img src="${p}" decoding="async">`:''}).join('')}</div>`}${op?rdd(r):''}</div>`};
 function listView(m){
  if(!R.length){m.innerHTML='<div class="ste"><div style="font-size:44px">🧾</div><b>Niciun cec încă</b><br><ol><li>Apasă „Scanează" și alege camera sau introducerea manuală</li><li>Cu camera, produsele apar singure; manual le scrii tu</li><li>Atinge un produs ca să-i pui poză</li></ol><br><button id="ef" class="p">📷 Adaugă primul cec</button><br><button id="efm" style="margin-top:10px">✍️ Adaugă manual</button></div>';$('#ef').onclick=()=>$('#fab').click();$('#efm').onclick=openManual;return}
  m.innerHTML=bkBanner()+`${sbox('sq','🔍 Caută un cec sau un produs',sq)}<div id="res"></div>`;
  const f=()=>{const q=key(sq),res=$('#res');let ix=R.map((r,i)=>i),h='',np=0;
-  if(q){ix=ix.filter(i=>{const r=R[i];return key(r.store).includes(q)||key(fmt(r)).includes(q)||r.items.some(x=>key(x.n).includes(q)||key(dn(x.n)).includes(q))});
-   const o={};R.forEach(r=>r.items.forEach(x=>{const k0=key(x.n),k=canon(k0);if(!(k0.includes(q)||k.includes(q)||key(nmOf(k,x.n)).includes(q)||key(cat(k)).includes(q)))return;const p=o[k]=o[k]||{n:nmOf(k,x.n),k,c:0,t:0};p.c+=x.q;p.t+=x.t}));
+  if(q){ix=ix.filter(i=>{const r=R[i];return key(r.store).includes(q)||key(fmt(r)).includes(q)||r.items.some(x=>nameHit(x.n,q))});
+   const o={};R.forEach(r=>r.items.forEach(x=>{const k0=key(x.n),k=canon(k0);if(!(nameHit(x.n,q)||key(cat(k)).includes(q)))return;const p=o[k]=o[k]||{n:nmOf(k,x.n),k,c:0,t:0};p.c+=x.q;p.t+=x.t}));
    const pl=Object.values(o).sort((a,b)=>b.c-a.c).slice(0,10);np=pl.length;
    if(np)h+='<h3 class="sec">Produse</h3><div class="card">'+pl.map(p=>row(p,esc(cat(p.k))+' · × '+p.c,lei(p.t))).join('')+'</div>';
    if(ix.length)h+='<h3 class="sec">Cecuri ('+ix.length+')</h3>'}
@@ -926,13 +943,13 @@ $('#pxs').onclick=()=>{localStorage.px=$('#px').value.trim();toast('Proxy salvat
 $('#lc').onclick=()=>$('#lb').hidden=true;$('#lb').onclick=e=>{if(e.target.id==='lb')$('#lb').hidden=true};
 $('#lp').onclick=()=>{$('#lb').hidden=true;$('#pf').click()};
 // Ștergerea pozei = înlocuire cu o înregistrare goală (img:''), ca să se propage prin sincronizare pe toate dispozitivele; se șterg și pozele numelor unite
-$('#ld').onclick=async()=>{const k=pk;$('#lb').hidden=true;if(!k)return;const c=canon(k),ks=[c,...(GR[c]||[])].filter(x=>P[x]);if(!ks.length)return;
+$('#ld').onclick=async()=>{const k=pk;$('#lb').hidden=true;if(!k)return;const c=canon(k),ks=(SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))]).filter(x=>P[x]);if(!ks.length)return;
  const old=[];for(const x of ks){const r=await tx('p','readonly',o=>o.get(x));old.push([x,r&&r.img||P[x]])}for(const x of ks){await tx('p','readwrite',o=>o.put({k:x,img:'',u:Date.now()}));await tx('pt','readwrite',o=>o.delete(x))}sync();await load();show();
  toast('Poză ștearsă','Anulează',async()=>{for(const[x,img]of old)await tx('p','readwrite',o=>o.put({k:x,img,u:Date.now()}));sync();await load();show()})};
 $('#qf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
  try{const b=await createImageBitmap(f),u=await decode(b,b.width,b.height);u?addLink(u):toast('Nu am găsit codul QR. Încearcă din nou, mai de aproape.')}catch(x){toast('Cititorul QR nu s-a încărcat. Lipește linkul cu „Lipește link”.')}};
 $('#pf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!pk)return;
- const img=await shrink(f);await tx('p','readwrite',o=>o.put({k:pk,img,u:Date.now()}));await setThumb(pk,img);sync();await load();show()};
+ const img=await shrink(f);await tx('p','readwrite',o=>o.put({k:pk,img,u:Date.now()}));await setThumb(pk,img);sync();await load();show();if($('#ps').open)psRender()};
 
 const SBU='https://cgernuoiikenyzzsjajx.supabase.co',SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnZXJudW9paWtlbnl6enNqYWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MTU1OTQsImV4cCI6MjEwNzI5MTU5NH0.K7zkrIpAHrG8_yOm5xeKm1fhD33oo-Hsm3nZ4ytk7ZQ';
 let S=null,space=localStorage.uid||'guest',syncing=0;
@@ -973,19 +990,32 @@ class ImpErr extends Error{}
 const cn=(n,o,m)=>n+' '+(n===1?o:m);
 $('#ex').onclick=async()=>{
  try{
-  const r=(await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted),keys=await tx('p','readonly',o=>o.getAllKeys()),n=r.filter(x=>x.id!=='__meta__').length;
+  const r=(await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted&&x.id!=='__meta__'),keys=await tx('p','readonly',o=>o.getAllKeys()),n=r.length;r.push({...metaRec(),u:Date.now()});
   if(!n&&!keys.length)return toast('Nu ai încă niciun cec de exportat.');
   const parts=['{"v":1,"receipts":',JSON.stringify(r),',"photos":['];let np=0;
   for(const k of keys){const x=await tx('p','readonly',o=>o.get(k));if(!x||typeof x.img!=='string'||!x.img)continue;parts.push((np++?',':'')+JSON.stringify({k:x.k,img:x.img}))}
   parts.push(']}');
   const blob=new Blob(parts,{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');
   a.href=u;a.download='cecuri-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),6e4);
-  localStorage.bkAt=Date.now();toast(cn(n,'cec','cecuri')+(np?' și '+cn(np,'poză','poze'):'')+' exportate ('+mb(blob.size)+')')
+  localStorage.bkAt=Date.now();{const nl=Object.keys(META.links||{}).length,na=Object.keys(META.alias||{}).length;toast(cn(n,'cec','cecuri')+(np?' și '+cn(np,'poză','poze'):'')+(nl||na?' + '+[nl&&cn(nl,'legătură','legături'),na&&cn(na,'nume alternativ','nume alternative')].filter(Boolean).join(', '):'')+' exportate ('+mb(blob.size)+')')}
  }catch(x){toast(isMemErr(x)?'Nu am putut crea copia: memorie insuficientă (prea multe poze deodată). Închide alte aplicații și încearcă din nou.':isQuota(x)?'Nu am putut crea copia: nu mai e loc pe dispozitiv.':'Nu am putut crea copia: '+((x&&(x.message||x.name))||x)+'.')}};
+// Îmbină setările din copie (legături, nume alternative, categorii, liste) cu cele existente; ce ai deja are prioritate
+async function mergeMeta(o){
+ META.links=META.links||{};META.alias=META.alias||{};META.cats=META.cats||{};META.no=META.no||[];META.sep=META.sep||[];META.shop=META.shop||[];
+ let nl=0,na=0;const obj=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{},arr=v=>Array.isArray(v)?v:[];
+ const L=obj(o.links);for(const a in L){const b=L[a];if(typeof b!=='string'||!b||a in META.links)continue;if(canon(b)===a||canon(a)===canon(b))continue;META.links[a]=b;nl++}
+ const A=obj(o.alias);for(const k in A)if(typeof A[k]==='string'&&A[k]&&!(k in META.alias)){META.alias[k]=A[k];na++}
+ const C=obj(o.cats);for(const k in C)if(typeof C[k]==='string'&&!(k in META.cats))META.cats[k]=C[k];
+ arr(o.no).forEach(x=>{if(typeof x==='string'&&!META.no.includes(x))META.no.push(x)});
+ arr(o.sep).forEach(x=>{if(typeof x==='string'&&!META.sep.includes(x))META.sep.push(x)});
+ arr(o.shop).forEach(x=>{if(x&&typeof x.n==='string'&&!META.shop.some(y=>y.k===x.k))META.shop.push(x)});
+ if(!(META.pinned||[]).length&&arr(o.pinned).length)META.pinned=o.pinned.filter(x=>typeof x==='string');
+ if(!META.budget&&+o.budget>0)META.budget=+o.budget;
+ await saveMeta();buildGR();return{nl,na}}
 $('#im').onclick=()=>$('#if').click();
 $('#if').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
- let n=0,np=0,skip=0,bad=0,stop=null;
- const done=async()=>{if(n||np){await load();cur=-1;show()}};
+ let n=0,np=0,skip=0,bad=0,stop=null,nl=0,na=0;
+ const done=async()=>{if(n||np||nl||na){await load();cur=-1;show()}};
  try{
   if(!f.size)throw new ImpErr('Fișierul e gol (0 KB). Probabil descărcarea sau copierea nu s-a terminat. Exportă din nou și alege fișierul nou.');
   let txt;try{txt=await f.text()}catch(x){throw new ImpErr(isMemErr(x)?'Nu am destulă memorie ca să citesc fișierul ('+mb(f.size)+'). Închide alte aplicații și încearcă din nou.':'Nu pot citi fișierul. Poate e încă în cloud (nedescărcat complet) sau a fost mutat. Descarcă-l pe dispozitiv și alege-l din nou.')}
@@ -997,8 +1027,9 @@ $('#if').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)re
   const rs=d.receipts,ps=Array.isArray(d.photos)?d.photos:[];
   const have=new Set((await tx('r','readonly',o=>o.getAll())).filter(x=>!x.deleted).map(x=>x.id)),hp=new Set(await tx('p','readonly',o=>o.getAllKeys()));
   for(const r of rs){
-   if(!r||typeof r.id!=='string'||!r.id||(r.id!=='__meta__'&&(!Array.isArray(r.items)||!Number.isFinite(r.ts)))){bad++;continue}
-   if(have.has(r.id)){if(r.id!=='__meta__')skip++;continue}
+   if(r&&r.id==='__meta__'){try{const g=await mergeMeta(r);nl+=g.nl;na+=g.na}catch(x){stop=x;break}continue}
+   if(!r||typeof r.id!=='string'||!r.id||!Array.isArray(r.items)||!Number.isFinite(r.ts)){bad++;continue}
+   if(have.has(r.id)){skip++;continue}
    if(space!=='guest')delete r.demo;r.u=Date.now();
    try{await tx('r','readwrite',o=>o.put(r));if(r.id!=='__meta__')n++}catch(x){stop=x;break}}
   if(!stop)for(const p of ps){
@@ -1007,7 +1038,7 @@ $('#if').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)re
   if(stop){const q=isQuota(stop),fr=q?await freeMem():null,got=cn(n,'cec','cecuri')+(np?' și '+cn(np,'poză','poze'):'');await done();
    throw new ImpErr(q?'Memorie insuficientă pe dispozitiv'+(fr!=null?' (mai sunt ~'+mb(Math.max(0,fr))+' libere)':'')+'. Am importat '+got+' înainte să se umple. Eliberează spațiu și repetă importul: ce e deja importat nu se dublează.':'Importul s-a oprit: nu am putut salva în memoria aplicației ('+(stop.name||stop.message||'eroare necunoscută')+'). Am importat '+got+'. Încearcă din nou: ce e deja importat nu se dublează.')}
   $('#ad').close();await done();sync();
-  toast(n||np?cn(n,'cec importat','cecuri importate')+(np?' + '+cn(np,'poză','poze'):'')+(skip?' · '+skip+' existau deja':'')+(bad?' · '+bad+' sărite (date invalide)':''):skip&&!bad?'Nimic nou: cele '+skip+' cecuri din fișier există deja.':'Nu s-a importat nimic'+(bad?': '+cn(bad,'înregistrare invalidă','înregistrări invalide')+' în fișier.':'.'))
+  toast(n||np||nl||na?cn(n,'cec importat','cecuri importate')+(np?' + '+cn(np,'poză','poze'):'')+(nl?' + '+cn(nl,'legătură','legături'):'')+(na?' + '+cn(na,'nume alternativ','nume alternative'):'')+(skip?' · '+skip+' existau deja':'')+(bad?' · '+bad+' sărite (date invalide)':''):skip&&!bad?'Nimic nou: cele '+skip+' cecuri din fișier există deja.':'Nu s-a importat nimic'+(bad?': '+cn(bad,'înregistrare invalidă','înregistrări invalide')+' în fișier.':'.'))
  }catch(x){
   if(!(x instanceof ImpErr))await done().catch(()=>{});
   toast(x instanceof ImpErr?x.message:isQuota(x)?'Memorie insuficientă pe dispozitiv. Eliberează spațiu și încearcă din nou.':isMemErr(x)?'Memorie insuficientă. Închide alte aplicații și încearcă din nou.':'Importul s-a oprit: '+((x&&(x.message||x.name))||x)+(n||np?'. Am importat deja '+cn(n,'cec','cecuri')+'.':'.'))}};
@@ -1037,7 +1068,7 @@ $('#an-s').onclick=async()=>{const raw=alRaw,k=key(raw),v=$('#an-i').value.trim(
  let to=null;if(!same){const ak=key(v);if(ak!==k)to=R.some(r=>r.items.some(i=>key(i.n)===ak))?ak:(Object.keys(META.alias).find(x=>x!==k&&key(META.alias[x])===ak)||null)}
  const linked=to?await mkLink(k,to):false;
  await saveMeta();buildGR();$('#an').close();show();
- toast(same?'Nume alternativ șters':linked?'Salvat și legat de „'+v+'”: istoricul prețurilor se unește':'Nume alternativ salvat','Anulează',async()=>{const o=JSON.parse(sn);META.links=o.l;META.no=o.n;if(prev===undefined)delete META.alias[k];else META.alias[k]=prev;await saveMeta();buildGR();show()})};
+ toast(same?'Nume alternativ șters':linked?'Salvat și legat de „'+v+'”: istoricul prețurilor se unește':'Nume alternativ salvat','Anulează',async()=>{const o=JSON.parse(sn);META.links=o.l;META.no=o.n;META.sep=o.s||[];if(prev===undefined)delete META.alias[k];else META.alias[k]=prev;await saveMeta();buildGR();show()},linked?'🖼 Poze':null,()=>openPhotoSync(k))};
 
 // ===== Cec adăugat manual =====
 let MN=null;
@@ -1086,6 +1117,17 @@ $('#m-ok').onclick=async()=>{const err=m=>{$('#m-err').textContent=m};err('');
  if(rview==='drop'){tab='r';prod=null;ed=null;cur=-1;dropId=id;pushNavigation();show()}else openReceipt(R.findIndex(y=>y.id===id));
  toast('Cec salvat ✓')};
 $('#sm').onclick=()=>{stop();openManual()};
+
+// ===== Poze la produse legate: aceleași sau separate =====
+let psK='';
+function psRender(){const mem=grpOf(psK),all=mem.every(x=>SEP.has(x));$('#ps-c').checked=!all;
+ $('#ps-h').textContent=all?'Atinge poza unui produs ca să o schimbi.':'Produsele legate arată aceeași poză.';
+ $('#ps-l').innerHTML=mem.map(x=>{const im=all?pho(x,1):pho(x);
+  return`<div class="sr"><span class="psb" ${all?`data-pk="${esc(x)}"`:''}>${im?`<img class="ph sm" src="${im}">`:`<span class="ph sm">${all?'+':''}</span>`}</span><div class="n"><div class="nn" style="-webkit-line-clamp:3">${esc(nmOf(x))}</div></div></div>`}).join('');
+ $('#ps-l').querySelectorAll('[data-pk]').forEach(e=>e.onclick=()=>{pk=e.dataset.pk;$('#pf').click()})}
+function openPhotoSync(k){if(!k)return;psK=k;if(grpOf(k).length<2)return toast('Produsul nu e legat de altul.');psRender();$('#ps').showModal()}
+$('#ps-c').onchange=async e=>{const mem=grpOf(psK);META.sep=(META.sep||[]).filter(x=>!mem.includes(x));if(!e.target.checked)META.sep.push(...mem);await saveMeta();buildGR();psRender();show('none')};
+$('#ps-x').onclick=()=>$('#ps').close();
 
 // ===== Mod afișare cec: pagină separată sau dropdown =====
 const rdd=r=>`<div class="rdd">${rPend(r)}${rItems(r)}${rTotal(r)}<div class="acts">${r.link?`<a href="${esc(r.link)}" target="_blank" class="mute">Deschide cecul online</a>`:'<span></span>'}<span style="display:flex;gap:8px"><button data-act="ed">✎ Editează</button>${r.demo?'':'<button data-act="rm" class="dng">Șterge</button>'}</span></div></div>`;
