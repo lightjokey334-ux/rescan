@@ -401,6 +401,11 @@ dialog#ps{width:min(92vw,420px);padding:16px}
 .chp.up{background:color-mix(in srgb,#c2410c 16%,transparent);color:#c2410c}.chp.dn{background:color-mix(in srgb,#15803d 16%,transparent);color:#15803d}
 @media(prefers-color-scheme:dark){.chp.up{color:#fb923c}.chp.dn,.cg .gs .dn{color:#4ade80}}
 @media(hover:hover){.cg .pw:hover{background:color-mix(in srgb,var(--acc) 8%,transparent)}}
+.pchips{display:flex;flex-wrap:wrap;gap:8px}.pchips .chip{font-size:13px;padding:6px 12px;text-align:left;line-height:1.3}
+.nu{padding:12px 0;border-bottom:1px dashed var(--line)}.nuc .nu:last-of-type{border:0}
+.nuh{display:flex;gap:10px;align-items:center;cursor:pointer}.nuh .ph{width:48px;height:48px;flex:none}
+.nun{min-width:0;flex:1;overflow-wrap:anywhere;line-height:1.3}.nun b{font-size:15px}.nu.sel .nun b{color:var(--acc)}
+.nua{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.nua button{padding:6px 12px;font-size:13px;border-radius:999px}
 .lgbar{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:10px 0 4px}.lgbar label{display:flex;gap:8px;align-items:center;font-size:14px}.lgbar select{width:auto;flex:none;max-width:52%;margin:0}
 </style></head><body>
 <aside class="sidebar" aria-label="Navigare principală">
@@ -809,7 +814,7 @@ function range(){const d=new Date(pd);if(sm==='m'){const a=new Date(d.getFullYea
 function shift(n){const[a]=range();pd=(sm==='m'?new Date(a.getFullYear(),a.getMonth()+n,1):new Date(a.getFullYear(),a.getMonth(),a.getDate()+7*n)).getTime()}
 const th=p=>`<span data-ph="${esc(p.k)}">${pho(p.k)?`<img class="ph sm" decoding="async" src="${pho(p.k)}">`:'<span class="ph sm"></span>'}</span>`;
 const row=(p,sub,val,cl)=>`<div class="sr">${th(p)}<div class="n" data-p="${esc(p.k)}" data-hvp="${esc(p.k)}">${esc(p.n)}<div class="mute">${sub}</div></div><b class="m ${cl||''}" data-p="${esc(p.k)}">${val}</b></div>`;
-function openProd(k,raw){prod=k;pfk=raw&&raw!==k?raw:null;tab='s';cur=-1;pushNavigation();show()}
+function openProd(k,raw){prod=k;pfk=raw||null;tab='s';cur=-1;pushNavigation();show()}
 function openLinks(){tab='l';prod=null;cur=-1;ed=null;pushNavigation();show()}
 function stats(){const m=$('#m');m.classList.toggle('wide',!prod&&sv==='l');if(prod)return product(m);if(sv==='p')return produse(m);if(sv==='c')return legate(m);if(sv==='i')return ideas(m);
  const rs=R.filter(r=>!r.pending);
@@ -846,28 +851,30 @@ function product(m){prod=canon(prod);const k=prod,eg=[];
  if(!eg.length){prod=null;return stats()}
  const fk=pfk&&canon(pfk)===k&&eg.some(x=>key(x.i.n)===pfk)?pfk:null,e=fk?eg.filter(x=>key(x.i.n)===fk):eg.slice();
  e.sort((x,y)=>y.r.ts-x.r.ts);const nm=fk?dn(e[0].i.n):nmOf(k,e[0].i.n),q=e.reduce((s,x)=>s+x.i.q,0),t=e.reduce((s,x)=>s+x.i.t,0),ph=fk?pho(fk,1):pho(k);
- const kc={};e.forEach(x=>{if(x.up)kc[x.up.k]=(kc[x.up.k]||0)+1});const uk=Object.keys(kc).sort((a,b)=>kc[b]-kc[a])[0]||null;
- const canU=!!uk&&kc[uk]>=Math.ceil(e.length/2),allW=canU&&e.every(x=>x.up&&x.up.w),sizes=new Set(e.map(x=>{const p=pack(x.i.n);return p?p.k+p.v:'w'}));
+ const nm2={};eg.forEach(x=>{const kk=key(x.i.n),o=nm2[kk]=nm2[kk]||{k:kk,n:x.i.n,s:new Set(),c:0,L:x};o.s.add(x.r.store);o.c++;if(x.r.ts>o.L.r.ts)o.L=x});const names=Object.values(nm2),multi=names.length>1;
+ const kc={};eg.forEach(x=>{if(x.up)kc[x.up.k]=(kc[x.up.k]||0)+1});const uk=Object.keys(kc).sort((a,b)=>kc[b]-kc[a])[0]||null;
+ const canU=!!uk&&kc[uk]>=Math.ceil(eg.length/2),allW=canU&&eg.every(x=>x.up&&x.up.w),sizes=new Set(eg.map(x=>{const p=pack(x.i.n);return p?p.k+p.v:'w'}));
  const mode=canU?(allW?'u':(pu||(sizes.size>1?'u':'b'))):'b',sfx=mode==='u'?'/'+uk:'';
- const val=x=>mode==='u'?(x.up&&x.up.k===uk?x.up.p:null):x.i.u,E=e.filter(x=>val(x)!=null),vs=E.map(val),mn=Math.min(...vs),mx=Math.max(...vs),sp=mx-mn||1;
- const all=e.slice().reverse(),gap=all.length>1?Math.round((all[all.length-1].r.ts-all[0].r.ts)/864e5/(all.length-1)):0,asc=E.slice().reverse();
+ const val=x=>mode==='u'?(x.up&&x.up.k===uk?x.up.p:null):x.i.u,EG=eg.filter(x=>val(x)!=null).sort((a,b)=>b.r.ts-a.r.ts);let E=e.filter(x=>val(x)!=null);if(!E.length)E=EG;
+ const vs=E.map(val),mn=Math.min(...vs),mx=Math.max(...vs),gv=EG.map(val),gmn=Math.min(...gv),sp=Math.max(...gv)-gmn||1;
+ const all=e.slice().reverse(),gap=all.length>1?Math.round((all[all.length-1].r.ts-all[0].r.ts)/864e5/(all.length-1)):0,asc=EG.slice().reverse();
  const pv=E.slice(1).find(x=>sk(x.r.store)===sk(E[0].r.store)),dd=pv?(vs[0]-val(pv))/val(pv)*100:0;
  const SC=['var(--acc)','#ea580c','#3b82f6','#d946ef','#eab308','#14b8a6'],t0=asc[0].r.ts,t1=asc[asc.length-1].r.ts,tsp=t1-t0||1;
- const ser=[...new Set(asc.map(x=>sk(x.r.store)))].map((s,j)=>{const a=asc.filter(x=>sk(x.r.store)===s);
-  return{n:a[a.length-1].r.store,c:SC[j%SC.length],l:val(a[a.length-1]),pts:a.map(x=>[t1===t0?150:2+(x.r.ts-t0)/tsp*296,66-(val(x)-mn)/sp*58])}});
- const nm2={};eg.forEach(x=>{const kk=key(x.i.n),o=nm2[kk]=nm2[kk]||{k:kk,n:x.i.n,s:new Set()};o.s.add(x.r.store)});const names=Object.values(nm2);
+ const kOf=x=>multi?key(x.i.n):sk(x.r.store);
+ const ser=[...new Set(asc.map(kOf))].map((q,j)=>{const a=asc.filter(x=>kOf(x)===q),L=a[a.length-1];
+  return{n:multi?dn(L.i.n):L.r.store,s:multi?[...new Set(a.map(x=>x.r.store))].join(', '):'',c:SC[j%SC.length],l:val(L),foc:!fk||!multi||q===fk,pts:a.map(x=>[t1===t0?150:2+(x.r.ts-t0)/tsp*296,66-(val(x)-gmn)/sp*58])}});
  const ttl=mode==='u'?(uk==='L'?'Preț pe litru':'Preț pe kg'):'Preț pe bucată';
  m.innerHTML=`<div class="nav"><button id="pb">‹ Înapoi</button><span></span></div>
  <div class="card" style="text-align:center"><span data-ph="${esc(fk||k)}" style="justify-content:center">${ph?`<img class="ph" style="width:120px;height:120px" src="${ph}">`:'<span class="ph" style="width:120px;height:120px;font-size:34px">+</span>'}</span>
  <h2 style="margin:10px 0 2px;font-size:18px">${esc(nm)} <button class="ed" data-alr="${esc((names.find(o=>o.k===k)||names[0]).n)}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button></h2><div class="mute">${e.length} ${e.length>1?'cumpărări':'cumpărare'}${gap?' · cam o dată la '+gap+' zile':''}</div><select id="pc" class="in" style="margin-top:10px">${CATS.map(c=>`<option${c===cat(k)?' selected':''}>${c}</option>`).join('')}</select></div>
- ${names.length>1?`<div class="chips" style="margin:0 0 10px"><button class="chip ${fk?'':'on'}" data-pf="">Toate legate · ${eg.length}</button>${names.map(o=>`<button class="chip ${fk===o.k?'on':''}" data-pf="${esc(o.k)}">${esc(dn(o.n))}</button>`).join('')}</div>`:''}
+ ${names.length>1?`<div class="chips pchips" style="margin:0 0 10px"><button class="chip ${fk?'':'on'}" data-pf="">Toate legate · ${eg.length}</button>${names.map(o=>`<button class="chip ${fk===o.k?'on':''}" data-pf="${esc(o.k)}">${esc(dn(o.n))}</button>`).join('')}</div>`:''}
  <div class="kp"><div class="card"><b>${lei(t)}</b><span class="mute">cheltuit</span></div><div class="card"><b>${+q.toFixed(3)}</b><span class="mute">cantitate</span></div><div class="card"><b>${lei(t/q)}</b><span class="mute">preț mediu</span></div></div>
  <div class="card"><div class="row"><b>${ttl}</b><span class="mute">ultimul ${lei(vs[0])}${sfx}${Math.abs(dd)>=1?` <b class="${dd>0?'up':'dn'}">${dd>0?'▲':'▼'} ${Math.abs(dd).toFixed(0)}%</b>`:''}</span></div>
  <div class="mute">minim ${lei(mn)}${sfx} · maxim ${lei(mx)}${sfx}</div>
  ${canU&&!allW?`<div class="pm"><button data-pu="b" class="${mode==='b'?'on':''}">Pe bucată</button><button data-pu="u" class="${mode==='u'?'on':''}">Pe ${uk==='L'?'litru':'kg'}</button></div>`:''}
- ${E.length>1?`<svg viewBox="0 0 300 70" style="width:100%;height:80px;margin-top:6px">${ser.map(z=>`<polyline points="${z.pts.map(p=>p.join(',')).join(' ')}" fill="none" style="stroke:${z.c}" stroke-width="2"/>${z.pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" style="fill:${z.c}"/>`).join('')}`).join('')}</svg>`:''}
- ${ser.length>1?`<div class="mute" style="display:flex;gap:6px 14px;flex-wrap:wrap;margin-top:6px">${ser.map(z=>`<span><i style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${z.c}"></i> ${esc(z.n)} ${lei(z.l)}${sfx}</span>`).join('')}</div>`:''}</div>
- ${names.length>1?`<h3 class="sec">Nume unite</h3><div class="card">${names.map(o=>`<div class="sr"><div class="n">${esc(dn(o.n))}${dn(o.n)!==o.n?` <span class="mute">(pe cec: ${esc(o.n)})</span>`:''}${o.k===k?' <span class="mute">★ principal</span>':''}<div class="mute">${[...o.s].map(esc).join(', ')}</div></div><button class="ed" data-alr="${esc(o.n)}" aria-label="Nume alternativ">✏️</button> ${o.k===k?'':`<button data-mn="${esc(o.k)}" title="Fă-l numele principal">★</button> `}<button data-ul="${esc(o.k)}">Dezleagă</button></div>`).join('')}<button class="lkrow" data-ps="${esc(k)}">🖼 Poze: ${sepAll(k)?'separate pentru fiecare':'aceleași pentru toate'}<span class="mute">Schimbă dacă ambalajele arată diferit</span></button></div>`:''}
+ ${EG.length>1?`<svg viewBox="0 0 300 70" style="width:100%;height:80px;margin-top:6px">${ser.map(z=>`<g opacity="${z.foc?1:.45}">${z.pts.length>1?`<polyline points="${z.pts.map(p=>p.join(',')).join(' ')}" fill="none" style="stroke:${z.c}" stroke-width="${z.foc?2.5:1.5}"/>`:''}${z.pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${z.foc?4:3}" style="fill:${z.c}"/>`).join('')}</g>`).join('')}</svg>`:''}
+ ${ser.length>1?`<div class="mute" style="display:grid;gap:4px;margin-top:8px;font-size:13px">${ser.map(z=>`<div style="display:flex;gap:8px;align-items:baseline${fk&&z.foc?';color:var(--ink);font-weight:600':''}"><i style="flex:none;width:10px;height:10px;border-radius:50%;background:${z.c}"></i><span style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(z.n)}${z.s?`<span style="font-weight:400;font-size:12px"> · ${esc(z.s)}</span>`:''}</span><b class="m" style="color:var(--ink)">${lei(z.l)}${sfx}</b></div>`).join('')}</div>`:''}</div>
+ ${multi?`<h3 class="sec">Nume unite</h3><div class="card nuc"><div class="mute" style="font-size:13px;margin-bottom:2px">★ = numele arătat în liste. Atinge un nume ca să vezi doar produsul acela.</div>${names.map(o=>{const ph0=pho(o.k,1)||pho(o.k),al=dn(o.n)!==o.n;return`<div class="nu${fk===o.k?' sel':''}"><div class="nuh" data-pf="${esc(o.k)}">${ph0?`<img class="ph" src="${ph0}">`:'<span class="ph"></span>'}<div class="nun"><b>${esc(dn(o.n))}</b>${o.k===k?' <span class="chp">★ principal</span>':''}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(o.n)}</div>`:''}<div class="mute" style="font-size:12px">${[...o.s].map(esc).join(', ')} · ${o.c} ${o.c>1?'cumpărări':'cumpărare'} · ultimul ${lei(o.L.i.u)}</div></div></div><div class="nua"><button data-alr="${esc(o.n)}">✏️ Nume</button>${o.k===k?'':`<button data-mn="${esc(o.k)}" title="Fă-l numele principal">★ Principal</button>`}<button data-ul="${esc(o.k)}">Dezleagă</button></div></div>`}).join('')}<button class="lkrow" data-ps="${esc(k)}">🖼 Poze: ${sepAll(k)?'separate pentru fiecare':'aceleași pentru toate'}<span class="mute">Schimbă dacă ambalajele arată diferit</span></button></div>`:''}
  <h3 class="sec">Când l-ai cumpărat</h3><div class="card">${e.map(x=>`<div class="sr" data-r="${esc(x.r.id)}" style="cursor:pointer"><div class="n">${dl(x.r.ts,{day:'numeric',month:'long',year:'numeric'})}<div class="mute">${esc(x.r.store)} · ${x.i.q} × ${lei(x.i.u)}${x.up&&!x.up.w?' · '+lei(x.up.p)+'/'+x.up.k:''}</div></div><b class="m">${lei(x.i.t)}</b></div>`).join('')}</div>`;
  $('#pc').onchange=ev=>{META.cats[k]=ev.target.value;saveMeta()};
  $('#pb').onclick=()=>history.back();
