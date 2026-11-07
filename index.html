@@ -407,6 +407,9 @@ dialog#ps{width:min(92vw,420px);padding:16px}
 .nuh{display:flex;gap:10px;align-items:center;cursor:pointer}.nuh .ph{width:48px;height:48px;flex:none}
 .nun{min-width:0;flex:1;overflow-wrap:anywhere;line-height:1.3}.nun b{font-size:15px}.nu.sel .nun b{color:var(--acc)}
 .nua{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.nua button{padding:6px 12px;font-size:13px;border-radius:999px}
+.pmseg{display:inline-flex;width:auto;margin:0}.pmseg button{padding:7px 12px;font-size:14px}
+.pdh{display:flex;gap:12px;align-items:center}.pdh .ph{width:64px;height:64px;flex:none;font-size:26px}.pdn{min-width:0}.pdn h2{margin:0 0 2px;font-size:17px;line-height:1.25;overflow-wrap:anywhere}
+details.adv{margin-top:12px;border-top:1px dashed var(--line);padding-top:2px}details.adv summary{cursor:pointer;font-weight:600;padding:10px 0;font-size:14px}
 .stl{margin-top:6px;display:grid;gap:3px}.sti{display:flex;gap:8px;align-items:baseline;font-size:13px}.sti span{flex:1;min-width:0;overflow-wrap:anywhere;color:var(--mute)}.sti b{flex:none}.sti em{flex:none;font-style:normal;font-size:12px;min-width:56px;text-align:right}
 .psw{display:flex;gap:12px;align-items:flex-start;cursor:pointer}.psw input{flex:none;width:22px;height:22px;margin:1px 0 0}.psw span{min-width:0}.psw small{display:block;color:var(--mute);font-size:12px;margin-top:2px;line-height:1.4}
 .nus{margin-top:10px;font-size:13px}.nus span{display:block;margin-bottom:4px}.nus select{display:block;width:100%;margin:0;padding:9px 10px;font-size:14px}
@@ -469,7 +472,7 @@ dialog#ps{width:min(92vw,420px);padding:16px}
 <div class="row" style="margin-top:14px;justify-content:flex-end"><button id="ps-x" class="p">Gata</button></div></dialog>
 <script>
 const $=s=>document.querySelector(s);const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,pfk=null,hv={},HVALL=localStorage.hvAll==='1',lastErr={},retrying=0,ed=null,sq='',sv='s',META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{},sep:[],one:[],dif:[],mg:{},ex:[]};
+let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,pfk=null,pmode='a',pall=false,hv={},HVALL=localStorage.hvAll==='1',lastErr={},retrying=0,ed=null,sq='',sv='s',META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{},sep:[],one:[],dif:[],mg:{},ex:[]};
 const navigationState=()=>({checkScanner:true,tab,receiptId:cur>=0&&R[cur]?R[cur].id:null,prod,editing:!!ed});
 const pushNavigation=()=>history.pushState(navigationState(),'');
 function openReceipt(i){const changed=tab!=='r'||cur!==i||prod!==null;tab='r';prod=null;cur=i;ed=null;if(changed)pushNavigation();show()}
@@ -502,12 +505,12 @@ const ck=n=>canon(key(n));
 let GR={},DN={},SEP=new Set(),FZ=new Set(),ONE=new Set(),DIF=new Set(),CL={},CLM={},CPK={};
 function buildGR(){GR={};DN={};SEP=new Set(META.sep||[]);const L=META.links||{};for(const a in L){const c=canon(a);(GR[c]=GR[c]||[]).push(a)}
  R.forEach(r=>r.items.forEach(i=>{const k=key(i.n);if(!(k in DN))DN[k]=i.n}));for(const k in (META.alias||{}))DN[k]=META.alias[k];
- // Produse = clustere de nume. Alegerea ta (mg/ex) are prioritate; altfel automat: toate numele unite cu același gramaj (sau fără gramaj) = un singur produs
+ // Produse = clustere de nume. Alegerea ta (mg/ex) are prioritate; altfel automat: toate numele legate = un singur produs
  FZ=new Set();CL={};CLM={};CPK={};ONE=new Set(META.one||[]);DIF=new Set(META.dif||[]);const EXS=new Set(META.ex||[]),MGR=META.mg||{};
  for(const c in GR){const mem=[c,...GR[c]],exp=mem.some(x=>EXS.has(x));
   const rt=x=>{let n=0;while(MGR[x]&&MGR[x]!==x&&canon(MGR[x])===c&&n++<30)x=MGR[x];return x};let f=false;
   if(!exp){const o=mem.some(x=>ONE.has(x)),d=mem.some(x=>DIF.has(x));
-   if(o&&!d)f=true;else if(d&&!o)f=false;else f=new Set(mem.map(x=>{const p=pack(DN[x]||x)||pack(x);return p?p.k+p.v:null}).filter(Boolean)).size<=1}
+   if(o&&!d)f=true;else if(d&&!o)f=false;else f=true}
   mem.forEach(x=>{CL[x]=exp?rt(x):(f?c:x)});
   if(new Set(mem.map(x=>CL[x])).size===1)FZ.add(c);
   mem.forEach(x=>{(CLM[CL[x]]=CLM[CL[x]]||[]).push(x)})}
@@ -838,7 +841,7 @@ function range(){const d=new Date(pd);if(sm==='m'){const a=new Date(d.getFullYea
 function shift(n){const[a]=range();pd=(sm==='m'?new Date(a.getFullYear(),a.getMonth()+n,1):new Date(a.getFullYear(),a.getMonth(),a.getDate()+7*n)).getTime()}
 const th=p=>`<span data-ph="${esc(p.k)}">${pho(p.k)?`<img class="ph sm" decoding="async" src="${pho(p.k)}">`:'<span class="ph sm"></span>'}</span>`;
 const row=(p,sub,val,cl)=>`<div class="sr">${th(p)}<div class="n" data-p="${esc(p.k)}" data-hvp="${esc(p.k)}">${esc(p.n)}<div class="mute">${sub}</div></div><b class="m ${cl||''}" data-p="${esc(p.k)}">${val}</b></div>`;
-function openProd(k,raw){prod=k;pfk=raw||null;tab='s';cur=-1;pushNavigation();show()}
+function openProd(k,raw){prod=k;pfk=raw||null;pmode='a';pall=false;tab='s';cur=-1;pushNavigation();show()}
 function openLinks(){tab='l';prod=null;cur=-1;ed=null;pushNavigation();show()}
 function stats(){const m=$('#m');m.classList.toggle('wide',!prod&&sv==='l');if(prod)return product(m);if(sv==='p')return produse(m);if(sv==='c')return legate(m);if(sv==='i')return ideas(m);
  const rs=R.filter(r=>!r.pending);
@@ -888,20 +891,39 @@ function product(m){prod=canon(prod);const k=prod,eg=[];
  const ser=[...new Set(asc.map(kOf))].map((q,j)=>{const a=asc.filter(x=>kOf(x)===q),L=a[a.length-1];
   return{n:multi?(DN[q]||dn(L.i.n)):L.r.store,s:multi?[...new Set(a.map(x=>x.r.store))].join(', '):'',c:SC[j%SC.length],l:val(L),foc:!fk||!multi||q===fk,pts:a.map(x=>[t1===t0?150:10+(x.r.ts-t0)/tsp*280,flat?36:62-(val(x)-gmn)/sp*52])}});
  const ttl=mode==='u'?(uk==='L'?'Preț pe litru':'Preț pe kg'):'Preț pe bucată';
- m.innerHTML=`<div class="nav"><button id="pb">‹ Înapoi</button><span></span></div>
- <div class="card" style="text-align:center"><span data-ph="${esc(fk||k)}" style="justify-content:center">${ph?`<img class="ph" style="width:120px;height:120px" src="${ph}">`:'<span class="ph" style="width:120px;height:120px;font-size:34px">+</span>'}</span>
- <h2 style="margin:10px 0 2px;font-size:18px">${esc(nm)} <button class="ed" data-alr="${esc((names.find(o=>o.k===k)||names[0]).n)}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button></h2><div class="mute">${e.length} ${e.length>1?'cumpărări':'cumpărare'}${gap?' · cam o dată la '+gap+' zile':''}</div><select id="pc" class="in" style="margin-top:10px">${CATS.map(c=>`<option${c===cat(k)?' selected':''}>${c}</option>`).join('')}</select></div>
+ const stm={};EG.forEach(x=>{const q=sk(x.r.store),o=stm[q]=stm[q]||{n:x.r.store,l:0,ts:0,sum:0,c:0},v=val(x);o.c++;o.sum+=v;if(x.r.ts>=o.ts){o.ts=x.r.ts;o.l=v}});
+ const strows=Object.values(stm).sort((a,b)=>a.l-b.l),cmpS=strows.length>1&&!multi,edit=pmode==='e';
+ const chip=(t,c)=>`<span class="chp${c?' '+c:''}">${t}</span>`;
+ const nav=`<div class="nav"><button id="pb">‹ Înapoi</button><div class="seg pmseg"><button data-pmo="a" class="${edit?'':'on'}">Analiză</button><button data-pmo="e" class="${edit?'on':''}">Editare</button></div></div>`;
+ let body='';
+ if(!edit){
+  const cheap=cmpS?strows[0]:null,dear=cmpS?strows[strows.length-1]:null;
+  body=`<div class="card pdh"><span data-ph="${esc(fk||k)}">${ph?`<img class="ph" src="${ph}">`:'<span class="ph">+</span>'}</span><div class="pdn"><h2>${esc(nm)}</h2><div class="mute" style="font-size:13px">${e.length} ${e.length>1?'cumpărări':'cumpărare'}${gap?' · cam o dată la '+gap+' zile':''} · ${esc(cat(k))}</div></div></div>
+ <div class="pwc" style="margin:-2px 0 12px">${chip('ultimul '+lei(vs[0])+sfx)}${Math.abs(dd)>=1?chip(`${dd>0?'▲ scumpire':'▼ ieftinire'} ${Math.abs(dd).toFixed(0)}%`,dd>0?'up':'dn'):''}${cheap&&dear.l>cheap.l?chip('🏷 '+esc(cheap.n)+' '+lei(cheap.l)+sfx,'dn')+chip('între magazine: +'+lei(dear.l-cheap.l)+sfx+' ('+((dear.l-cheap.l)/cheap.l*100).toFixed(0)+'%)','up'):''}</div>
  ${multi?`<div class="chips pchips" style="margin:0 0 10px"><button class="chip ${fk?'':'on'}" data-pf="">Toate legate · ${eg.length}</button>${clist.map(o=>`<button class="chip ${fk===o.k?'on':''}" data-pf="${esc(o.k)}">${esc(o.n)}</button>`).join('')}</div>`:''}
- <div class="kp"><div class="card"><b>${lei(t)}</b><span class="mute">cheltuit</span></div><div class="card"><b>${+q.toFixed(3)}</b><span class="mute">cantitate</span></div><div class="card"><b>${lei(t/q)}</b><span class="mute">preț mediu</span></div></div>
- <div class="card"><div class="row"><b>${ttl}</b><span class="mute">ultimul ${lei(vs[0])}${sfx}${Math.abs(dd)>=1?` <b class="${dd>0?'up':'dn'}">${dd>0?'▲':'▼'} ${Math.abs(dd).toFixed(0)}%</b>`:''}</span></div>
- <div class="mute">minim ${lei(mn)}${sfx} · maxim ${lei(mx)}${sfx}</div>
+ <div class="card"><div class="row"><b>${ttl}</b><span class="mute" style="font-size:13px">minim ${lei(mn)}${sfx} · maxim ${lei(mx)}${sfx}</span></div>
  ${canU&&!allW?`<div class="pm"><button data-pu="b" class="${mode==='b'?'on':''}">Pe bucată</button><button data-pu="u" class="${mode==='u'?'on':''}">Pe ${uk==='L'?'litru':'kg'}</button></div>`:''}
  ${EG.length>1?`<svg viewBox="0 0 300 70" style="width:100%;height:80px;margin-top:6px;overflow:visible">${ser.map(z=>`<g opacity="${z.foc?1:.45}">${z.pts.length>1?`<polyline points="${z.pts.map(p=>p.join(',')).join(' ')}" fill="none" style="stroke:${z.c}" stroke-width="${z.foc?2.5:1.5}"/>`:''}${z.pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${z.foc?4:3}" style="fill:${z.c}"/>`).join('')}</g>`).join('')}</svg>`:''}
- ${(()=>{if(ser.length<2)return'';const o=ser.slice().sort((a,b)=>a.l-b.l),a=o[0],z=o[o.length-1];return z.l>a.l?`<div style="margin-top:8px;font-size:13px"><span class="dn"><b>🏷 ${esc(a.n)}</b></span> <span class="mute">e cu</span> <b>${((z.l-a.l)/a.l*100).toFixed(0)}%</b> <span class="mute">(${lei(z.l-a.l)}${sfx}) mai ieftin decât</span> ${esc(z.n)}</div>`:''})()}${ser.length>1?`<div class="mute" style="display:grid;gap:4px;margin-top:8px;font-size:13px">${ser.map(z=>`<div style="display:flex;gap:8px;align-items:baseline${fk&&z.foc?';color:var(--ink);font-weight:600':''}"><i style="flex:none;width:10px;height:10px;border-radius:50%;background:${z.c}"></i><span style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(z.n)}${z.s?`<span style="font-weight:400;font-size:12px"> · ${esc(z.s)}</span>`:''}</span><b class="m" style="color:var(--ink)">${lei(z.l)}${sfx}</b></div>`).join('')}</div>`:''}</div>
- ${names.length>1?`<h3 class="sec">Nume unite</h3><div class="card nuc"><div class="mute" style="font-size:13px;line-height:1.45">Alege ce nume sunt <b>același produs</b>: prețurile lor se urmăresc împreună, într-un singur grafic. Numele pe care nu le potrivești rămân produse separate, comparate între ele.</div><label class="psw" style="margin:10px 0 0"><input type="checkbox" id="fzc" ${fzd?'checked':''}><span><b>Toate numele = un singur produs</b></span></label>${names.map(o=>{const ph0=pho(o.k,1)||pho(o.k),al=dn(o.n)!==o.n,r=CL[o.k]||o.k,kids=(CLM[o.k]||[]).length-1;return`<div class="nu${fk&&fk===r?' sel':''}"><div class="nuh${fzd?' nf':''}"${fzd?'':` data-pf="${esc(r)}"`}>${ph0?`<img class="ph" src="${ph0}">`:'<span class="ph"></span>'}<div class="nun"><b>${esc(dn(o.n))}</b>${o.k===k?' <span class="chp">★ principal</span>':''}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(o.n)}</div>`:''}<div class="mute" style="font-size:12px">${[...o.s].map(esc).join(', ')} · ${o.c} ${o.c>1?'cumpărări':'cumpărare'} · ultimul ${lei(o.L.i.u)}</div></div></div><div class="nus"><span class="mute">Același produs ca:</span><select data-sm="${esc(o.k)}" class="in"><option value="">${r===o.k&&kids>0?'★ produsul de bază (include '+kids+')':'— produs separat —'}</option>${names.filter(z=>z.k!==o.k).map(z=>`<option value="${esc(z.k)}"${r!==o.k&&r===z.k?' selected':''}>${esc(dn(z.n))}</option>`).join('')}</select></div><div class="nua"><button data-alr="${esc(o.n)}">✏️ Nume</button>${o.k===k?'':`<button data-mn="${esc(o.k)}" title="Fă-l numele principal">★ Principal</button>`}<button data-ul="${esc(o.k)}">Dezleagă</button></div></div>`}).join('')}<button class="lkrow" data-ps="${esc(k)}">⚙ Opțiuni produse legate<span class="mute">${fzd?'un singur produs':multi?'produse comparate':'produs unit'} · poze ${sepAll(k)?'separate':'comune'}</span></button></div>`:''}
- <h3 class="sec">Când l-ai cumpărat</h3><div class="card">${e.map(x=>`<div class="sr" data-r="${esc(x.r.id)}" style="cursor:pointer"><div class="n">${dl(x.r.ts,{day:'numeric',month:'long',year:'numeric'})}<div class="mute">${esc(x.r.store)} · ${x.i.q} × ${lei(x.i.u)}${x.up&&!x.up.w?' · '+lei(x.up.p)+'/'+x.up.k:''}</div></div><b class="m">${lei(x.i.t)}</b></div>`).join('')}</div>`;
- $('#pc').onchange=ev=>{META.cats[k]=ev.target.value;saveMeta()};
- $('#pb').onclick=()=>history.back();if($('#fzc'))$('#fzc').onchange=async e=>{await setFuse(k,e.target.checked);pfk=null;product(m)};m.querySelectorAll('[data-sm]').forEach(sel=>sel.onchange=async()=>{await setSame(sel.dataset.sm,sel.value);pfk=null;product(m)});
+ ${ser.length>1?`<div class="mute" style="display:grid;gap:4px;margin-top:8px;font-size:13px">${ser.map(z=>`<div style="display:flex;gap:8px;align-items:baseline${fk&&z.foc?';color:var(--ink);font-weight:600':''}"><i style="flex:none;width:10px;height:10px;border-radius:50%;background:${z.c}"></i><span style="flex:1;min-width:0;overflow-wrap:anywhere">${esc(z.n)}${z.s?`<span style="font-weight:400;font-size:12px"> · ${esc(z.s)}</span>`:''}</span>${multi?`<b class="m" style="color:var(--ink)">${lei(z.l)}${sfx}</b>`:''}</div>`).join('')}</div>`:''}</div>
+ ${cmpS?`<h3 class="sec">Pe magazine</h3><div class="card">${strows.map((o,i)=>`<div class="sr"><div class="n">${i===0?'🏷 ':''}${esc(o.n)}<div class="mute" style="font-size:12px">${o.c} ${o.c>1?'cumpărări':'cumpărare'} · ultima dată ${dl(o.ts,{day:'numeric',month:'short'})} · medie ${lei(o.sum/o.c)}${sfx}</div></div><div style="text-align:right"><b class="m">${lei(o.l)}${sfx}</b><div class="${i?'up':'dn'}" style="font-size:12px">${i?'+'+((o.l-strows[0].l)/strows[0].l*100).toFixed(0)+'%':'cel mai ieftin'}</div></div></div>`).join('')}</div>`:''}
+ <div class="kp"><div class="card"><b>${lei(t)}</b><span class="mute">cheltuit</span></div><div class="card"><b>${+q.toFixed(3)}</b><span class="mute">cantitate</span></div><div class="card"><b>${lei(t/q)}</b><span class="mute">preț mediu</span></div></div>
+ <h3 class="sec">Când l-ai cumpărat</h3><div class="card">${(pall?e:e.slice(0,5)).map(x=>`<div class="sr" data-r="${esc(x.r.id)}" style="cursor:pointer"><div class="n">${dl(x.r.ts,{day:'numeric',month:'long',year:'numeric'})}<div class="mute">${esc(x.r.store)} · ${x.i.q} × ${lei(x.i.u)}${x.up&&!x.up.w?' · '+lei(x.up.p)+'/'+x.up.k:''}</div></div><b class="m">${lei(x.i.t)}</b></div>`).join('')}${e.length>5&&!pall?`<button class="lkrow" data-pall="1" style="margin-top:8px">Arată toate (${e.length})</button>`:''}</div>`;
+ }else{
+  const nameBlk=o=>{const ph0=pho(o.k,1)||pho(o.k),al=dn(o.n)!==o.n;return`<div class="nu"><div class="nuh nf">${ph0?`<img class="ph" src="${ph0}">`:'<span class="ph"></span>'}<div class="nun"><b>${esc(dn(o.n))}</b>${o.k===k?' <span class="chp">★ principal</span>':''}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(o.n)}</div>`:''}<div class="mute" style="font-size:12px">${[...o.s].map(esc).join(', ')} · ${o.c} ${o.c>1?'cumpărări':'cumpărare'} · ultimul ${lei(o.L.i.u)}</div></div></div><div class="nua"><button data-alr="${esc(o.n)}">✏️ Nume</button>${o.k===k?'':`<button data-mn="${esc(o.k)}" title="Fă-l numele principal">★ Principal</button>`}<button data-ul="${esc(o.k)}">Dezleagă</button></div></div>`};
+  const selBlk=o=>{const r=CL[o.k]||o.k,kids=(CLM[o.k]||[]).length-1;return`<div class="nus"><span class="mute">${esc(dn(o.n))} — același produs ca:</span><select data-sm="${esc(o.k)}" class="in"><option value="">${r===o.k&&kids>0?'★ produsul de bază (include '+kids+')':'— produs separat —'}</option>${names.filter(z=>z.k!==o.k).map(z=>`<option value="${esc(z.k)}"${r!==o.k&&r===z.k?' selected':''}>${esc(dn(z.n))}</option>`).join('')}</select></div>`};
+  body=`<div class="card" style="text-align:center"><span data-ph="${esc(fk||k)}" style="justify-content:center">${ph?`<img class="ph" style="width:110px;height:110px" src="${ph}">`:'<span class="ph" style="width:110px;height:110px;font-size:34px">+</span>'}</span>
+ <h2 style="margin:10px 0 2px;font-size:18px">${esc(nm)} <button class="ed" data-alr="${esc((names.find(o=>o.k===k)||names[0]).n)}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button></h2><div class="mute" style="font-size:13px">Atinge poza ca să o schimbi · ✏️ schimbă numele afișat</div><select id="pc" class="in" style="margin-top:10px">${CATS.map(c=>`<option${c===cat(k)?' selected':''}>${c}</option>`).join('')}</select></div>
+ ${names.length>1?`<h3 class="sec">Nume unite</h3><div class="card nuc"><div class="mute" style="font-size:13px;line-height:1.45">Produsele legate sunt tratate automat ca un singur produs: un singur grafic și prețurile din toate magazinele comparate.</div>${names.map(nameBlk).join('')}<button class="lkrow" data-ps="${esc(k)}">⚙ Opțiuni pentru poze<span class="mute">poze ${sepAll(k)?'separate':'comune'}</span></button>
+ <details class="adv"><summary>Avansat: produse diferite în același grup</summary><div class="mute" style="font-size:13px;line-height:1.45;margin-bottom:8px">Doar dacă unele nume nu sunt de fapt același produs (altă marcă, alt tip). Cele separate se compară între ele.</div><label class="psw" style="margin:0 0 6px"><input type="checkbox" id="fzc" ${fzd?'checked':''}><span><b>Toate numele = un singur produs</b></span></label>${names.map(selBlk).join('')}</details></div>`:`<h3 class="sec">Legături</h3><div class="card"><div class="mute" style="font-size:13px">Produsul nu e legat de altele. Leagă-l de același produs din alt magazin (sau cu alt nume) ca să vezi prețurile împreună.</div><button class="lkrow" id="pgl" style="margin-top:8px">🔗 Legături între produse</button></div>`}`;
+ }
+ m.innerHTML=nav+body;
+ if($('#pc'))$('#pc').onchange=ev=>{META.cats[k]=ev.target.value;saveMeta()};
+ $('#pb').onclick=()=>history.back();
+ m.querySelectorAll('[data-pmo]').forEach(b=>b.onclick=()=>{pmode=b.dataset.pmo;pall=false;product(m);window.scrollTo(0,0)});
+ m.querySelectorAll('[data-pall]').forEach(b=>b.onclick=()=>{pall=true;product(m)});
+ if($('#pgl'))$('#pgl').onclick=()=>openLinks();
+ if($('#fzc'))$('#fzc').onchange=async ev=>{await setFuse(k,ev.target.checked);pfk=null;product(m)};
+ m.querySelectorAll('[data-sm]').forEach(sel=>sel.onchange=async()=>{await setSame(sel.dataset.sm,sel.value);pfk=null;product(m)});
  m.querySelectorAll('[data-pf]').forEach(b=>b.onclick=()=>{pfk=b.dataset.pf||null;product(m)});m.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>{pu=b.dataset.pu;product(m)});m.querySelectorAll('[data-alr]').forEach(b=>b.onclick=()=>openAlias(b.dataset.alr));
  m.querySelectorAll('[data-ul]').forEach(b=>b.onclick=async()=>{const sn=snapMeta();await rmLink(b.dataset.ul);toast('Dezlegat','Anulează',undoTo(sn,()=>product(m)));product(m)});
  m.querySelectorAll('[data-mn]').forEach(b=>b.onclick=async()=>{await setMain(b.dataset.mn);product(m)});
@@ -1198,7 +1220,7 @@ function grpData(k,ix){ix=ix||idxAll();const c=canon(k),keys=[c,...(GR[c]||[])];
   const by={};m.e.forEach(x=>{const q=sk(x.r.store);if(!by[q]&&val(x)!=null)by[q]={s:q,n:x.r.store,v:val(x),ts:x.r.ts}});m.sp=Object.values(by).sort((a,b)=>a.v-b.v);
   const fv=m.e.slice().reverse().map(val).find(v=>v!=null);m.v0=fv==null?null:fv;m.d0=fv&&m.v!=null?(m.v-fv)/fv*100:0;m.sprd=m.min!=null&&m.min>0?(m.max-m.min)/m.min*100:0});
  const ok=mem.filter(m=>m.v!=null).sort((a,b)=>a.v-b.v),best=ok[0]||null,worst=ok[ok.length-1]||null;
- const sizes=new Set(mem.map(m=>{const p=pack(m.raw);return p?p.k+p.v:'w'}));
+ const sizes=new Set([].concat(...mem.map(m=>m.alln)).map(n=>{const p=pack(n);return p?p.k+p.v:'w'}));
  return{c,fz,linked:keys.length>1,mem,ord:ok.concat(mem.filter(m=>m.v==null)),uk,sfx:uk?'/'+uk:'',val,best,worst,mixed:!uk&&sizes.size>1,name:DN[c]||(mem[0]?mem[0].n:c),
   da:best&&worst&&best!==worst?worst.v-best.v:0,dp:best&&worst&&best!==worst&&best.v>0?(worst.v-best.v)/best.v*100:0,up:Math.max(0,...mem.map(m=>m.dd)),dn:Math.min(0,...mem.map(m=>m.dd)),sp:Math.max(0,...mem.map(m=>m.sprd)),
   var:mem.some(m=>m.sprd>0.49||(m.sp.length>1&&m.sp[m.sp.length-1].v-m.sp[0].v>0.005))}}
