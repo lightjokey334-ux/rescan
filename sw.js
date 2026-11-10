@@ -1,5 +1,5 @@
 // Cache separat pentru fiecare folder (la github.io mai multe aplicații împart același domeniu)
-const P='cecuri@'+self.registration.scope+'#',C=P+'v25';
+const P='cecuri@'+self.registration.scope+'#',C=P+'v26';
 const F=['./','index.html','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/icon-maskable-512.png','icons/apple-touch-icon.png'];
 const X=['https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js','https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'];
 const CDN=/^https:\/\/(cdn\.jsdelivr\.net|cdnjs\.cloudflare\.com)$/;

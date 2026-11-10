@@ -46,7 +46,7 @@ img.ph.sm,.ph.sm{width:40px;height:40px;font-size:14px}
 h3.sec{margin:18px 0 6px;font-size:16px}
 dialog::backdrop{background:rgba(0,0,0,.55);}
 input.in,select.in{width:100%;margin:6px 0;font:inherit;padding:10px;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px}
-.ei{padding:8px 0;border-bottom:1px dashed var(--line)}.ei .row{align-items:center;gap:6px}.ei .row input{width:26%;margin:0}.ei .row b{flex:1;text-align:right}.ei .eil{display:block;font-size:12px;margin:0}.ei .edw{font-size:12px;color:#c2410c;margin:0 0 4px;line-height:1.35}.ei .edb{font-size:13px;padding:4px 10px;margin-top:8px}.ei .edd{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-top:8px}.ei .edf{flex:1 1 140px;min-width:0}.ei .edf label{display:block;font-size:12px;margin:0 0 2px}.ei .edd input{width:100%;margin:0}.ei .edd[hidden],.ei .edb[hidden],.ei .edw[hidden]{display:none}.ei .edd .edg{flex-basis:100%;order:3}.ei .edd [data-nod]{order:4}.dsc{font-size:12px;color:var(--acc)}.dupn{font-size:12px}.dupn a{color:var(--acc);text-decoration:underline}
+.ei{padding:8px 0;border-bottom:1px dashed var(--line)}.ei .row{align-items:center;gap:6px}.ei .row input{width:26%;margin:0}.ei .row b{flex:1;text-align:right}.ei .eil{display:block;font-size:12px;margin:0}.ei .edw{font-size:12px;color:#c2410c;margin:0 0 4px;line-height:1.35}.ei .edb{font-size:13px;padding:4px 10px;margin-top:8px}.ei .edd{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-top:8px}.ei .edf{flex:1 1 140px;min-width:0}.ei .edf label{display:block;font-size:12px;margin:0 0 2px}.ei .edd input{width:100%;margin:0}.ei .edd[hidden],.ei .edb[hidden],.ei .edw[hidden]{display:none}.ei .edd .edg{flex-basis:100%;order:3}.ei .edd [data-nod]{order:2}.dsc{font-size:12px;color:var(--acc)}.dupn{font-size:12px}.dupn a{color:var(--acc);text-decoration:underline}
 .pb{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:4px}.pb i{display:block;height:100%;background:var(--acc);border-radius:0;min-height:0}.pb.over i{background:#c2410c}
 input[type=checkbox]{width:22px;height:22px;flex:none}
 
@@ -818,7 +818,7 @@ function show(force){const nv=vstate(),pv=prevV,dir=pv&&force!=='none'?(force||v
  else{run();const m=$('#m');m.classList.remove('in-fwd','in-back','in-fade','in-deck-l','in-deck-r');void m.offsetWidth;m.classList.add('in-'+dir)}}
 const rUnit=i=>i.un?`${+i.q} ${i.un} × ${lei(i.u)}/${i.un}`:`${i.q} × ${lei(i.u)}`;
 const rPend=r=>r.pending?'<p>Produsele nu au fost încă citite.'+((r.err||lastErr[r.id])?'<br><span class="mute cp">Motiv: '+esc(r.err||lastErr[r.id])+'</span>':'')+(r.link?'<br><span class="mute m cp" style="word-break:break-all;font-size:12px">'+esc(r.link)+'</span>':'')+'</p><button id="rt" class="p">Încearcă din nou</button> <button id="pt">Lipește textul</button>':'';
-const rItems=r=>{const dup={};r.items.forEach(i=>{const x=key(i.n);dup[x]=(dup[x]||0)+1});return r.items.map((i,j)=>{const k=ck(i.n),rk=key(i.n),ph=pho(rk,1),al=META.alias&&META.alias[key(i.n)];return`<div class="it"><${ph?`img class="ph" src="${ph}"`:'button class="ph"'} data-k="${esc(rk)}">${ph?'':'+'}</${ph?'img':'button'}><div class="n" data-p="${esc(k)}" data-hvp="${esc(rk)}">${esc(al||i.n)}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(i.n)}</div>`:''}<div class="mute m">${rUnit(i)}</div>${i.d>0?`<div class="dsc">−${lei(i.d)} reducere</div>`:''}${dup[rk]>1?`<div class="mute dupn">⚠ Același nume ca alt produs de pe cec · <a href="#" data-edn="${j}">Schimbă numele</a></div>`:''}</div><button class="ed" data-al="${j}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button><span class="m">${lei(i.t)}</span></div>`}).join('')};
+const rItems=r=>{const dup={};r.items.forEach(i=>{const x=key(i.n);dup[x]=(dup[x]||0)+1});return r.items.map((i,j)=>{const k=ck(i.n),rk=key(i.n),ph=pho(rk,1),al=META.alias&&META.alias[key(i.n)];return`<div class="it"><${ph?`img class="ph" src="${ph}"`:'button class="ph"'} data-k="${esc(rk)}">${ph?'':'+'}</${ph?'img':'button'}><div class="n" data-p="${esc(k)}" data-hvp="${esc(rk)}">${esc(al||i.n)}${al?`<div class="mute" style="font-size:12px">pe cec: ${esc(i.n)}</div>`:''}<div class="mute m">${rUnit(i)}</div>${i.d>0?`<div class="dsc">reducere −${lei(i.d)}${i.o>0?' (preț original '+lei(i.o)+')':''}</div>`:''}${dup[rk]>1?`<div class="mute dupn">⚠ Același nume ca alt produs de pe cec · <a href="#" data-edn="${j}">Schimbă numele</a></div>`:''}</div><button class="ed" data-al="${j}" aria-label="Nume alternativ" title="Nume alternativ">✏️</button><span class="m">${lei(i.t)}</span></div>`}).join('')};
 const rTotal=r=>`<div class="row" style="margin-top:10px"><span>Total</span><span class="tot m cp">${lei(r.total)}</span></div>`;
 const rcardHtml=r=>`<div class="card" id="rcard"><button id="eb" style="float:right;padding:4px 10px">✎ Editează</button><b>${esc(r.store)}</b>${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️ manual</span>':''}<div class="mute">${fmt(r)}${r.no?' · bon №<span class="cp">'+esc(r.no)+'</span>':''}</div>${rPend(r)}
  ${rItems(r)}
@@ -982,40 +982,34 @@ function listView(m){
   bind(res);bindDrop(res)};
  let tmr;$('#sq').oninput=e=>{sq=e.target.value;clearTimeout(tmr);tmr=setTimeout(f,140)};f();bkBind();bindSb(m)}
 function editView(m,r){const e=ed,rd=v=>Math.round(v*100)/100,tot=()=>rd(e.items.reduce((s,i)=>s+i.t,0)),z=n=>String(n).padStart(2,'0'),x=new Date(e.ts);
- const dt=x.getFullYear()+'-'+z(x.getMonth()+1)+'-'+z(x.getDate())+'T'+z(x.getHours())+':'+z(x.getMinutes()),G=e.items.map(i=>rd((+i.t||0)+(+i.d||0)));
+ const dt=x.getFullYear()+'-'+z(x.getMonth()+1)+'-'+z(x.getDate())+'T'+z(x.getHours())+':'+z(x.getMinutes());e.items.forEach(i=>{if(i.d>0&&!(i.o>0)&&i.q>0){i.o=rd(((+i.t||0)+i.d)/i.q);i.u=rd(i.t/i.q)}});
  m.innerHTML=`<div class="nav"><button id="ec">Anulează</button><b>Editare cec</b><button id="es" class="p">Salvează</button></div>
  <div class="card"><label class="mute">Magazin</label><input id="e-s" class="in" value="${esc(e.store)}"><label class="mute">Data și ora</label><input id="e-d" class="in" type="datetime-local" value="${dt}">
  <h3 class="sec">Produse</h3><p class="mute" style="font-size:13px;margin:0 0 4px">Aici poți corecta numele de pe cec (ex. când a fost tăiat) și adăuga reduceri.</p>${e.items.map((i,j)=>`<div class="ei" data-j="${j}"><label class="mute eil">Nume pe cec</label><input class="in" data-f="n" value="${esc(i.n)}" placeholder="Nume produs"><div class="edw" hidden></div><div class="row"><input class="in" data-f="q" type="number" inputmode="decimal" step="any" value="${i.q}"><span>×</span><input class="in" data-f="u" type="number" inputmode="decimal" step="any" value="${i.u}"><b class="m" id="lt${j}">${lei(i.t)}</b><button data-x="${j}">✕</button></div>
- <button class="edb" data-dsc="${j}"${i.d>0?' hidden':''}>＋ Reducere</button><div class="edd"${i.d>0?'':' hidden'}><div class="edf"><label class="mute" for="edu${j}">Preț/unitate cu reducere</label><input id="edu${j}" class="in" data-f="du" type="number" inputmode="decimal" step="any" min="0" placeholder="ex. 8.49" value="${i.d>0&&i.q>0&&i.d<=G[j]?rd((G[j]-i.d)/i.q):''}"></div><div class="edf"><label class="mute" for="ed${j}">sau reducere totală (lei)</label><input id="ed${j}" class="in" data-f="d" type="number" inputmode="decimal" step="any" min="0" placeholder="ex. 3.00" value="${i.d>0?i.d:''}"></div><small class="mute edg"></small><button data-nod="${j}">Fără reducere</button></div></div>`).join('')}
+ <button class="edb" data-dsc="${j}"${i.d>0?' hidden':''}>＋ Reducere</button><div class="edd"${i.d>0?'':' hidden'}><div class="edf"><label class="mute" for="eo${j}">Preț original (fără reducere)</label><input id="eo${j}" class="in" data-f="o" type="number" inputmode="decimal" step="any" min="0" placeholder="pe unitate, ex. 10.00" value="${i.o>0?i.o:''}"></div><button data-nod="${j}">Fără reducere</button><small class="mute edg"></small></div></div>`).join('')}
  <button id="ea" style="margin-top:10px">＋ Produs</button><div class="row" style="margin-top:12px"><span>Total</span><input id="e-t" class="in" type="number" inputmode="decimal" step="any" value="${(+e.total||0).toFixed(2)}" style="width:130px;margin:0"></div>
  <p class="mute">Dacă dai unui produs același nume ca altuia, statisticile și pozele lor se unesc. Mai simplu: Statistici → Legături.</p></div>`;
  const chk=()=>{const c={};e.items.forEach(i=>{const k=key(i.n||'');if(k)c[k]=(c[k]||0)+1});m.querySelectorAll('.ei').forEach(d=>{const k=key(e.items[+d.dataset.j].n||''),w=d.querySelector('.edw'),dp=!!k&&c[k]>1;w.hidden=!dp;if(dp)w.textContent='⚠ Același nume ca alt produs de pe cec. Dacă sunt produse diferite, schimbă numele — altfel se unesc în statistici și poze.'})};
- const SRC=e.items.map(()=>'d'),DU=e.items.map(()=>null);
- const line=j=>{const i=e.items[j],g=m.querySelector('.ei[data-j="'+j+'"] .edg'),gr=G[j];let msg='',bad=false;
-  if(SRC[j]==='u'&&DU[j]!=null&&DU[j]>(+i.u||0)+1e-9){msg='Prețul cu reducere e mai mare decât prețul normal.';bad=true}
-  else if(i.d>gr+1e-9){msg='Reducerea e mai mare decât prețul produsului.';bad=true}
-  else if(i.d>0)msg='Fără reducere: '+lei(gr)+' · reducere: '+lei(i.d);
+ // Prețul din cec (u) e deja cel plătit, cu reducere. Aici se notează doar prețul original; reducerea se calculează din diferență și nu schimbă totalul.
+ const line=j=>{const i=e.items[j],g=m.querySelector('.ei[data-j="'+j+'"] .edg'),bad=i.o>0&&i.o<=(+i.u||0)+1e-9;let msg;
+  if(bad)msg='Prețul original trebuie să fie mai mare decât prețul plătit ('+lei(i.u)+').';
+  else if(i.d>0)msg='Ai plătit '+lei(i.u)+' în loc de '+lei(i.o)+' · reducere: '+lei(i.d)+' ('+Math.round((i.o-i.u)/i.o*100)+'%)';
+  else msg='Reducerea se calculează din diferența față de prețul plătit ('+lei(i.u)+').';
   $('#lt'+j).textContent=lei(i.t);g.textContent=msg;g.style.color=bad?'#c2410c':''};
  const sumTot=()=>{e.total=tot();$('#e-t').value=e.total.toFixed(2)};
- // reducerea se poate da ca preț/unitate cu reducere (mai exact) sau ca sumă totală; celălalt câmp se completează singur
- const apply=j=>{const i=e.items[j],gr=G[j],du=m.querySelector('#edu'+j),dd=m.querySelector('#ed'+j);
-  if(SRC[j]==='u'){i.d=DU[j]==null?0:Math.max(0,rd(gr-rd(i.q*DU[j])));dd.value=i.d>0?String(i.d):''}
-  else du.value=i.d>0&&i.q>0&&i.d<=gr?String(rd((gr-i.d)/i.q)):'';
-  i.t=Math.max(0,rd(gr-(i.d||0)));line(j);sumTot()};
+ const disc=j=>{const i=e.items[j];i.d=i.o>0&&i.o>(+i.u||0)+1e-9?Math.max(0,rd(rd(i.q*i.o)-i.t)):0};
  m.querySelectorAll('.ei').forEach(d=>{const j=+d.dataset.j;d.querySelectorAll('input').forEach(inp=>inp.oninput=()=>{const f=inp.dataset.f,i=e.items[j];
   if(f==='n'){i.n=inp.value;chk();return}
   const v=parseFloat(inp.value)||0;
-  if(f==='du'){SRC[j]='u';DU[j]=inp.value===''?null:v}
-  else if(f==='d'){SRC[j]='d';i.d=Math.max(0,v)}
-  else{i[f]=v;G[j]=rd(i.q*i.u)}
-  apply(j)})});
- m.querySelectorAll('[data-dsc]').forEach(b=>b.onclick=()=>{const d=b.closest('.ei');b.hidden=true;d.querySelector('.edd').hidden=false;d.querySelector('[data-f=du]').focus()});
- m.querySelectorAll('[data-nod]').forEach(b=>b.onclick=()=>{const j=+b.dataset.nod,d=b.closest('.ei'),i=e.items[j];i.d=0;DU[j]=null;SRC[j]='d';i.t=rd(G[j]);d.querySelector('[data-f=d]').value='';d.querySelector('[data-f=du]').value='';d.querySelector('.edd').hidden=true;d.querySelector('[data-dsc]').hidden=false;line(j);sumTot()});
+  if(f==='o'){i.o=inp.value===''?0:v;disc(j);line(j);return}
+  i[f]=v;i.t=rd(i.q*i.u);disc(j);line(j);sumTot()})});
+ m.querySelectorAll('[data-dsc]').forEach(b=>b.onclick=()=>{const d=b.closest('.ei');b.hidden=true;d.querySelector('.edd').hidden=false;d.querySelector('[data-f=o]').focus()});
+ m.querySelectorAll('[data-nod]').forEach(b=>b.onclick=()=>{const j=+b.dataset.nod,d=b.closest('.ei'),i=e.items[j];i.o=0;i.d=0;d.querySelector('[data-f=o]').value='';d.querySelector('.edd').hidden=true;d.querySelector('[data-dsc]').hidden=false;line(j)});
  e.items.forEach((_,j)=>line(j));chk();
  $('#e-t').oninput=ev=>{e.total=parseFloat(ev.target.value)||0};$('#e-s').oninput=ev=>{e.store=ev.target.value};$('#e-d').onchange=ev=>{const t=Date.parse(ev.target.value);if(t)e.ts=t};
  m.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{e.items.splice(+b.dataset.x,1);e.total=tot();editView(m,r)});
  $('#ea').onclick=()=>{e.items.push({n:'',q:1,u:0,t:0,l:''});editView(m,r)};$('#ec').onclick=()=>history.back();
- $('#es').onclick=async()=>{e.items=e.items.filter(i=>i.n.trim());e.items.forEach(i=>{i.n=i.n.trim();if(i.d>0)i.d=rd(i.d);else delete i.d});e.store=(e.store||'').trim()||'Magazin';e.pending=!e.items.length&&!!e.link;const id=e.id;await save(e);await load();cur=R.findIndex(y=>y.id===id);ed=null;history.back()};
+ $('#es').onclick=async()=>{e.items=e.items.filter(i=>i.n.trim());e.items.forEach(i=>{i.n=i.n.trim();if(i.d>0){i.d=rd(i.d);i.o=rd(i.o)}else{delete i.d;delete i.o}});e.store=(e.store||'').trim()||'Magazin';e.pending=!e.items.length&&!!e.link;const id=e.id;await save(e);await load();cur=R.findIndex(y=>y.id===id);ed=null;history.back()};
  if(edFocus!=null){const el=m.querySelector('.ei[data-j="'+edFocus+'"] [data-f=n]');edFocus=null;if(el)setTimeout(()=>{el.scrollIntoView({block:'center'});el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(_){}},60)}}
 function ideas(m){
  const rs=R.filter(r=>!r.pending),now=Date.now(),DAY=864e5,sum=l=>l.reduce((s,r)=>s+r.total,0),avg=a=>a.reduce((s,x)=>s+x,0)/a.length;
