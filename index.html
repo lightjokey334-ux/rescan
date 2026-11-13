@@ -51,7 +51,7 @@ input.in,select.in{width:100%;margin:6px 0;font:inherit;padding:10px;background:
 input[type=checkbox]{width:22px;height:22px;flex:none}
 
 #lb,#sc{position:fixed;inset:0;background:#000d;z-index:8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:16px}
-#lb[hidden],#sc[hidden],#inst[hidden]{display:none}#li{max-width:100%;max-height:75vh;border-radius:12px;object-fit:contain}
+#lb[hidden],#sc[hidden],#inst[hidden]{display:none}#li{max-width:100%;max-height:58vh;border-radius:12px;object-fit:contain}
 #v{width:100%;max-width:520px;max-height:70vh;border-radius:14px;object-fit:cover}
 #m.screen-in{animation:screen-in .18s ease-out}
 @keyframes screen-in{from{opacity:.75;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -167,7 +167,7 @@ html[data-vt=deck-l]::view-transition-new(rcard){animation-name:dk-in-r2}html[da
 .dd.open .ddp{opacity:1;visibility:visible;transform:none;transition-delay:0s}
 .ddo{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;border:0;border-radius:8px;background:none;color:var(--ink);padding:12px;text-align:left;font:inherit}
 .ddo.on{background:var(--acc);color:var(--paper)}.ddo.on .mute{color:inherit;opacity:.8}
-#lb .row{flex-wrap:wrap;justify-content:center}
+#lb .row{flex-wrap:wrap;justify-content:center}#lb .row[hidden]{display:none}#lh{width:100%;max-width:440px;text-align:center}#lh .lht{font-size:13px;color:#fffc;margin-bottom:6px}.lhs{display:flex;gap:8px;overflow-x:auto;padding:2px}.lhs>:first-child{margin-left:auto}.lhs>:last-child{margin-right:auto}.lhb{flex:none;padding:2px;min-height:0;border:2px solid transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fffc;font-size:11px}.lhb img{width:56px;height:56px;object-fit:cover;border-radius:9px}.lhb.on{border-color:var(--acc)}
 .dng{color:#e5484d;border-color:#e5484d}
 
 /* ===== grafic: etichetele sub bare; meniu derulant mai vizibil ===== */
@@ -447,7 +447,7 @@ details.adv{margin-top:12px;border-top:1px dashed var(--line);padding-top:2px}de
 <div class="mute hint" style="margin-top:12px">Copie de siguranță · cecuri și poze</div>
 <div class="pair"><button id="ex">⬇ Salvează</button><button id="im">⬆ Restaurează</button></div><input id="if" type="file" accept=".json,application/json" hidden>
 <details style="margin-top:12px"><summary class="mute">Avansat</summary><input id="px" placeholder="Adresa proxy Cloudflare (opțional)"><button id="pxs">Salvează proxy</button></details></dialog>
-<div id="lb" hidden><img id="li" alt=""><div class="row" style="gap:12px"><button id="lc">Închide</button><button id="lp" class="p">Schimbă poza</button><button id="ld" class="dng">Șterge poza</button></div></div>
+<div id="lb" hidden><img id="li" alt=""><div id="lh"></div><div class="row" id="lr1" style="gap:12px"><button id="lc">Închide</button><button id="ln" class="p">📷 Ambalaj nou</button><button id="lp" title="Corectezi poza, fără să păstrezi vechea poză">Înlocuiește</button><button id="ld" class="dng">Șterge poza</button></div><div class="row" id="lr2" style="gap:12px" hidden><button id="lq">‹ Înapoi</button><button id="lu" class="p">Folosește aceasta</button><button id="lx" class="dng">Șterge</button></div></div>
 <div id="sc" hidden><video id="v" playsinline muted></video><p class="mute" style="color:#fff">Îndreaptă camera spre codul QR</p><div class="row" style="gap:12px;justify-content:center"><button id="sm" class="p">✍️ Adaugă manual</button><button id="sx">Închide</button></div></div>
 <input id="qf" type="file" accept="image/*" capture="environment" hidden>
 <input id="pf" type="file" accept="image/*" hidden>
@@ -840,7 +840,7 @@ function _show(){hvClose();const m=$('#m');m.classList.remove('screen-in','wide'
  if($('#rt'))$('#rt').onclick=async()=>{toast('Se încearcă...');await retry();const x=R.find(y=>y.id===r.id);if(x&&x.pending)toast('Încă nu merge. Verifică internetul sau proxy-ul.')};
  m.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>zoom(e.dataset.k));bindAl(m,r);bind(m);deckBind(m)}
 const mh=i=>{const f=x=>new Date(R[x].ts).toLocaleDateString('ro-RO',{month:'long',year:'numeric'});return i&&f(i)===f(i-1)?'':'<h3 class="mute" style="margin:14px 0 8px;text-transform:capitalize">'+f(i)+'</h3>'};
-const zoom=async k=>{pk=phk(k);const im=pho(k,1);if(!im)return $('#pf').click();const c=canon(k);let f='';for(const x of (SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))])){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img){f=r.img;break}}$('#li').src=f||im;$('#lb').hidden=false};
+const zoom=async k=>{pk=phk(k);pfMode='rep';const im=pho(k,1);if(!im)return $('#pf').click();const c=canon(k);let f='';for(const x of (SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))])){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img){f=r.img;break}}lbCur=f||im;$('#li').src=lbCur;$('#lb').hidden=false;lbReset()};
 const bind=m=>{m.querySelectorAll('[data-ph]').forEach(e=>e.onclick=()=>zoom(e.dataset.ph));m.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>openProd(e.dataset.p))};
 const dl=(d,o)=>new Date(d).toLocaleDateString('ro-RO',o),D0=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
 function range(){const d=new Date(pd);if(sm==='m'){const a=new Date(d.getFullYear(),d.getMonth(),1);return[a,new Date(a.getFullYear(),a.getMonth()+1,1)]}
@@ -1066,15 +1066,40 @@ if($('#sb2'))$('#sb2').onclick=()=>$('#b2').click();
 if($('#sb4'))$('#sb4').onclick=()=>$('#b4').click();
 $('#pxs').onclick=()=>{localStorage.px=$('#px').value.trim();toast('Proxy salvat')};
 $('#lc').onclick=()=>$('#lb').hidden=true;$('#lb').onclick=e=>{if(e.target.id==='lb')$('#lb').hidden=true};
-$('#lp').onclick=()=>{$('#lb').hidden=true;$('#pf').click()};
+$('#lp').onclick=()=>{pfMode='rep';$('#lb').hidden=true;$('#pf').click()};
+// ===== Istoricul pozelor =====
+// „Ambalaj nou” păstrează poza veche: ea se salvează sub cheia „produs#data”, în aceleași magazine p/pt, deci merge la fel și la sincronizare și backup.
+let pfMode='rep',lbOld=null,lbCur='';
+const lbKeys=()=>{const c=canon(pk);return SEP.has(pk)?[pk]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))]};
+const lbHist=async()=>{const bs=new Set([pk,...lbKeys()]),out=[];for(const x of await tx('p','readonly',o=>o.getAllKeys())){if(typeof x!=='string')continue;const i=x.lastIndexOf('#');if(i<1||!bs.has(x.slice(0,i)))continue;const ts=+x.slice(i+1);if(ts&&P[x])out.push({k:x,ts})}return out.sort((a,b)=>b.ts-a.ts)};
+const lbCurImg=async()=>{for(const x of lbKeys()){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img)return r.img}return''};
+const lbArchive=async()=>{const im=await lbCurImg();if(!im)return;const hk=pk+'#'+Date.now();await tx('p','readwrite',o=>o.put({k:hk,img:im,u:Date.now()}));await setThumb(hk,im)};
+const lbDrop=async hk=>{await tx('p','readwrite',o=>o.put({k:hk,img:'',u:Date.now()}));await tx('pt','readwrite',o=>o.delete(hk))};
+const lbShow=async hk=>{lbOld=hk||null;$('#lr1').hidden=!!hk;$('#lr2').hidden=!hk;let src=lbCur;if(hk){const r=await tx('p','readonly',o=>o.get(hk));src=(r&&r.img)||P[hk]||lbCur}$('#li').src=src;document.querySelectorAll('#lh .lhb').forEach(b=>b.classList.toggle('on',b.dataset.hk===(hk||'')))};
+const lbRender=async()=>{const h=await lbHist(),box=$('#lh');
+ box.innerHTML=h.length?`<div class="lht">Poze mai vechi · atinge una ca să o vezi</div><div class="lhs"><button class="lhb on" data-hk=""><img src="${pho(pk,1)||''}" alt=""><span>Acum</span></button>${h.map(o=>`<button class="lhb" data-hk="${esc(o.k)}"><img src="${P[o.k]}" alt=""><span>până la ${dl(o.ts,{day:'numeric',month:'short'})}</span></button>`).join('')}</div>`:'<div class="lht">Ambalaj schimbat? „Ambalaj nou” păstrează poza veche.</div>';
+ box.querySelectorAll('.lhb').forEach(b=>b.onclick=()=>lbShow(b.dataset.hk))};
+const lbReset=()=>{lbOld=null;$('#lr1').hidden=false;$('#lr2').hidden=true;lbRender()};
+$('#ln').onclick=()=>{pfMode='new';$('#lb').hidden=true;$('#pf').click()};
+$('#lq').onclick=()=>lbShow('');
+$('#lu').onclick=async()=>{const hk=lbOld;if(!hk)return;const r=await tx('p','readonly',o=>o.get(hk));if(!r||!r.img)return;
+ await lbArchive();await tx('p','readwrite',o=>o.put({k:pk,img:r.img,u:Date.now()}));await setThumb(pk,r.img);await lbDrop(hk);
+ $('#lb').hidden=true;sync();await load();show();toast('Poza veche e din nou cea principală')};
+$('#lx').onclick=async()=>{const hk=lbOld;if(!hk)return;const r=await tx('p','readonly',o=>o.get(hk)),img=r&&r.img||'';
+ await lbDrop(hk);await load();await lbRender();await lbShow('');sync();
+ toast('Poză veche ștearsă','Anulează',async()=>{if(img){await tx('p','readwrite',o=>o.put({k:hk,img,u:Date.now()}));await setThumb(hk,img)}sync();await load();if(!$('#lb').hidden)lbRender();show()})};
+
 // Ștergerea pozei = înlocuire cu o înregistrare goală (img:''), ca să se propage prin sincronizare pe toate dispozitivele; se șterg și pozele numelor unite
 $('#ld').onclick=async()=>{const k=pk;$('#lb').hidden=true;if(!k)return;const c=canon(k),ks=(SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))]).filter(x=>P[x]);if(!ks.length)return;
- const old=[];for(const x of ks){const r=await tx('p','readonly',o=>o.get(x));old.push([x,r&&r.img||P[x]])}for(const x of ks){await tx('p','readwrite',o=>o.put({k:x,img:'',u:Date.now()}));await tx('pt','readwrite',o=>o.delete(x))}sync();await load();show();
- toast('Poză ștearsă','Anulează',async()=>{for(const[x,img]of old)await tx('p','readwrite',o=>o.put({k:x,img,u:Date.now()}));sync();await load();show()})};
+ const old=[];for(const x of ks){const r=await tx('p','readonly',o=>o.get(x));old.push([x,r&&r.img||P[x]])}for(const x of ks){await tx('p','readwrite',o=>o.put({k:x,img:'',u:Date.now()}));await tx('pt','readwrite',o=>o.delete(x))}
+ // dacă produsul are poze mai vechi, cea mai recentă devine din nou poza principală
+ let pro=null;const hs=await lbHist();if(hs.length){const r=await tx('p','readonly',o=>o.get(hs[0].k));if(r&&r.img){pro={hk:hs[0].k,img:r.img};await tx('p','readwrite',o=>o.put({k,img:r.img,u:Date.now()}));await setThumb(k,r.img);await lbDrop(hs[0].k)}}
+ sync();await load();show();
+ toast(pro?'Poză ștearsă · a revenit poza veche':'Poză ștearsă','Anulează',async()=>{for(const[x,img]of old)await tx('p','readwrite',o=>o.put({k:x,img,u:Date.now()}));if(pro){await tx('p','readwrite',o=>o.put({k:pro.hk,img:pro.img,u:Date.now()}));await setThumb(pro.hk,pro.img);if(!old.some(([x])=>x===k))await lbDrop(k)}sync();await load();show()})};
 $('#qf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
  try{const b=await createImageBitmap(f),u=await decode(b,b.width,b.height);u?addLink(u):toast('Nu am găsit codul QR. Încearcă din nou, mai de aproape.')}catch(x){toast('Cititorul QR nu s-a încărcat. Lipește linkul cu „Lipește link”.')}};
 $('#pf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f||!pk)return;
- const img=await shrink(f);await tx('p','readwrite',o=>o.put({k:pk,img,u:Date.now()}));await setThumb(pk,img);sync();await load();show();if($('#ps').open)psRender()};
+ const nw=pfMode==='new';pfMode='rep';const img=await shrink(f);if(nw)await lbArchive();await tx('p','readwrite',o=>o.put({k:pk,img,u:Date.now()}));await setThumb(pk,img);sync();await load();show();if($('#ps').open)psRender();if(nw)toast('Poza nouă e salvată · cea veche rămâne în istoric')};
 
 const SBU='https://cgernuoiikenyzzsjajx.supabase.co',SBK='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNnZXJudW9paWtlbnl6enNqYWp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MTU1OTQsImV4cCI6MjEwNzI5MTU5NH0.K7zkrIpAHrG8_yOm5xeKm1fhD33oo-Hsm3nZ4ytk7ZQ';
 let S=null,space=localStorage.uid||'guest',syncing=0;
@@ -1372,7 +1397,7 @@ function psRender(){const mem=grpOf(psK),all=mem.every(x=>SEP.has(x));$('#ps-c')
  $('#ps-h').textContent=all?'Atinge poza unui produs ca să o schimbi.':'Produsele legate arată aceeași poză.';
  $('#ps-l').innerHTML=mem.map(x=>{const im=all?pho(x,1):pho(x);
   return`<div class="sr"><span class="psb" ${all?`data-pk="${esc(x)}"`:''}>${im?`<img class="ph sm" src="${im}">`:`<span class="ph sm">${all?'+':''}</span>`}</span><div class="n"><div class="nn" style="-webkit-line-clamp:3">${esc(nmOf(x))}</div></div></div>`}).join('');
- $('#ps-l').querySelectorAll('[data-pk]').forEach(e=>e.onclick=()=>{pk=e.dataset.pk;$('#pf').click()})}
+ $('#ps-l').querySelectorAll('[data-pk]').forEach(e=>e.onclick=()=>{pk=e.dataset.pk;pfMode='rep';$('#pf').click()})}
 function openPhotoSync(k){if(!k)return;psK=k;if(grpOf(k).length<2)return toast('Produsul nu e legat de altul.');psRender();$('#ps').showModal()}
 $('#ps-c').onchange=async e=>{const mem=grpOf(psK);META.sep=(META.sep||[]).filter(x=>!mem.includes(x));if(!e.target.checked)META.sep.push(...mem);await saveMeta();buildGR();psRender();show('none')};
 $('#ps-x').onclick=()=>$('#ps').close();
