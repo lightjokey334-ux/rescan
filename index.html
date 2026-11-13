@@ -239,7 +239,7 @@ dialog#ad{width:min(92vw,420px);padding:14px 16px 12px}
 /* ===== Sidebar (doar desktop) ===== */
 .sidebar{display:none}
 .stat-pair>h3.sec{margin:18px 0 6px}
-.stat-pair>.card{margin-bottom:6px}
+.stat-pair>.card{margin-bottom:6px}.pper{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pper .pert{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.25}.pper button{white-space:nowrap}.pper .pert b{text-transform:capitalize}.pper .pert .mute{font-size:12px}
 
 /* ===== Layout pentru desktop ===== */
 @media(min-width:1024px){
@@ -587,11 +587,15 @@ $('#lkopen').onclick=()=>{$('#ad').close();openLinks()};
 document.addEventListener('pointerdown',e=>{const d=document.querySelector('.dd.open');if(d&&(!d.contains(e.target)||e.target===d)){d.classList.remove('open');dgAt=Date.now()}});
 addEventListener('keydown',e=>{if(e.key==='Escape'){const d=document.querySelector('.dd.open');if(d)d.classList.remove('open')}});
 // ===== Produse pe categorii =====
-let pcat=null,psort='t',pq='';
+let pcat=null,psort='t',pq='',pper=null;
+// perioada aleasă în Rezumat (lună/săptămână): când intri într-o categorie, Produse arată doar ce ai cumpărat atunci
+const pperBox=()=>pper?`<div class="card pper"><button id="pperb" class="mini">‹ Rezumat</button><div class="pert"><b>📅 ${esc(pper.t)}</b><span class="mute">Doar ce ai cumpărat atunci</span></div><button id="pperx" class="mini">Arată tot</button></div>`:'';
+const bindPper=m=>{if($('#pperb'))$('#pperb').onclick=()=>{pper=null;sv='s';show()};if($('#pperx'))$('#pperx').onclick=()=>{pper=null;show()}};
 function produse(m){
- const rs=R.filter(r=>!r.pending);m.innerHTML=svSeg();
- if(!rs.length){m.insertAdjacentHTML('beforeend','<p class="mute">Produsele apar după ce ai cecuri citite.</p>');bindSv(m);return}
- const P0={};rs.forEach(r=>r.items.forEach(i=>{const k=ck(i.n),o=P0[k]=P0[k]||{k,n:nmOf(k,i.n),c:0,t:0,ts:0,u:0,up:null,cat:cat(k),hs:new Set()};o.hs.add(key(i.n));o.hs.add(key(dn(i.n)));o.c++;o.t+=i.t;if(r.ts>=o.ts){o.ts=r.ts;o.u=i.u;o.up=entUp(i)}}));
+ const rs0=R.filter(r=>!r.pending),rs=pper?rs0.filter(r=>r.ts>=pper.a&&r.ts<pper.b):rs0;m.innerHTML=svSeg()+pperBox();
+ if(!rs0.length){m.insertAdjacentHTML('beforeend','<p class="mute">Produsele apar după ce ai cecuri citite.</p>');bindSv(m);return}
+ if(!rs.length){m.insertAdjacentHTML('beforeend','<p class="mute">Niciun produs cumpărat în perioada aceasta.</p>');bindSv(m);bindPper(m);return}
+ const P0={};rs.forEach(r=>r.items.forEach(i=>{const k=ck(i.n),o=P0[k]=P0[k]||{k,n:nmOf(k,i.n),c:0,q:0,t:0,ts:0,u:0,up:null,cat:cat(k),hs:new Set()};o.hs.add(key(i.n));o.hs.add(key(dn(i.n)));o.c++;o.q+=+i.q||0;o.t+=i.t;if(r.ts>=o.ts){o.ts=r.ts;o.u=i.u;o.up=entUp(i)}}));
  const all=Object.values(P0),cc={};all.forEach(o=>cc[o.cat]=(cc[o.cat]||0)+1);
  const cats=Object.entries(cc).sort((a,b)=>b[1]-a[1]);if(pcat&&!cc[pcat])pcat=null;
  m.insertAdjacentHTML('beforeend',`<div class="dd" id="pdd"><button type="button" class="ddb" id="pddb" aria-haspopup="listbox" aria-expanded="false"><span id="pddl">${pcat?esc(pcat)+' · '+cc[pcat]:'Toate categoriile · '+all.length}</span><span class="car">▾</span></button><div class="ddp" role="listbox"><button type="button" class="ddo ${pcat?'':'on'}" data-pc=""><span>Toate categoriile</span><span class="mute">${all.length}</span></button>${cats.map(([c,n])=>`<button type="button" class="ddo ${pcat===c?'on':''}" data-pc="${esc(c)}"><span>${esc(c)}</span><span class="mute">${n}</span></button>`).join('')}</div></div>
@@ -601,14 +605,14 @@ function produse(m){
  const draw=anim=>{const q=key(pq);const a=all.filter(o=>(!pcat||o.cat===pcat)&&(!q||key(o.n).includes(q)||o.k.includes(q)||[...o.hs].some(x=>x.includes(q))));
   a.sort(psort==='n'?(x,y)=>x.n.localeCompare(y.n,'ro'):psort==='r'?(x,y)=>y.ts-x.ts:(x,y)=>y.t-x.t);
   $('#psum').textContent=a.length+(a.length===1?' produs':' produse')+' · '+Math.round(a.reduce((s,o)=>s+o.t,0))+' lei';
-  const pl=$('#pl');pl.innerHTML=a.length?a.map(o=>row(o,o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+lei(o.u)+(o.up?' · '+lei(o.up.p)+'/'+o.up.k:''),lei(o.t))).join(''):'<div class="mute">Nimic găsit.</div>';
+  const pl=$('#pl');pl.innerHTML=a.length?a.map(o=>row(o,pper?'× '+String(+o.q.toFixed(3))+' · '+o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+dl(o.ts,{day:'numeric',month:'short'}):o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+lei(o.u)+(o.up?' · '+lei(o.up.p)+'/'+o.up.k:''),lei(o.t))).join(''):'<div class="mute">Nimic găsit.</div>';
   bind(pl);if(anim){pl.classList.remove('swap');void pl.offsetWidth;pl.classList.add('swap')}};
  const dd=$('#pdd'),setOpen=o=>{dd.classList.toggle('open',o);$('#pddb').setAttribute('aria-expanded',o)};
  $('#pddb').onclick=()=>setOpen(!dd.classList.contains('open'));
  m.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{pcat=b.dataset.pc||null;m.querySelectorAll('[data-pc]').forEach(x=>x.classList.toggle('on',x===b));$('#pddl').textContent=pcat?pcat+' · '+cc[pcat]:'Toate categoriile · '+all.length;setOpen(false);draw(1)});
  m.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>{psort=b.dataset.ps;m.querySelectorAll('[data-ps]').forEach(x=>x.classList.toggle('on',x===b));draw(1)});
  $('#pq').oninput=e=>{pq=e.target.value;draw()};
- bindSb(m);bindSv(m);draw()}
+ bindSb(m);bindSv(m);bindPper(m);draw()}
 // ===== Săgeți stânga/dreapta între cecuri =====
 addEventListener('keydown',e=>{if(tab!=='r'||cur<0||ed||e.metaKey||e.ctrlKey||e.altKey)return;
  if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName)||document.querySelector('dialog[open]')||!$('#lb').hidden)return;
@@ -858,7 +862,7 @@ function stats(){const m=$('#m');m.classList.toggle('wide',!prod&&sv==='l');if(p
  const nd=Math.round((b-a)/864e5),days=[...Array(nd)].map((_,i)=>{const d0=new Date(a.getFullYear(),a.getMonth(),a.getDate()+i),d1=new Date(a.getFullYear(),a.getMonth(),a.getDate()+i+1),l=cm.filter(r=>inr(r,d0,d1));return{d:d0,v:sum(l),n:l.length}});
  const mx=Math.max(1,...days.map(x=>x.v)),last=new Date(b.getFullYear(),b.getMonth(),b.getDate()-1);
  const title=sm==='m'?dl(a,{month:'long',year:'numeric'}):dl(a,{day:'numeric',month:'short'})+' – '+dl(last,{day:'numeric',month:'short'});
- const pr={},st={};cm.forEach(r=>{st[r.store]=(st[r.store]||0)+r.total;r.items.forEach(i=>{const k=ck(i.n),p=pr[k]=pr[k]||{n:nmOf(k,i.n),k,c:0,t:0};p.c+=i.q;p.t+=i.t})});const pl=Object.values(pr);const cs={};cm.forEach(r=>r.items.forEach(i=>{const c=cat(ck(i.n));cs[c]=(cs[c]||0)+i.t}));const ct=Object.entries(cs).sort((x,y)=>y[1]-x[1]),cx=ct.length?ct[0][1]:1;
+ const pr={},st={};cm.forEach(r=>{st[r.store]=(st[r.store]||0)+r.total;r.items.forEach(i=>{const k=ck(i.n),p=pr[k]=pr[k]||{n:nmOf(k,i.n),k,c:0,t:0};p.c+=i.q;p.t+=i.t})});const pl=Object.values(pr);const cs={},cp={};cm.forEach(r=>r.items.forEach(i=>{const c=cat(ck(i.n));cs[c]=(cs[c]||0)+i.t;(cp[c]=cp[c]||new Set()).add(ck(i.n))}));const ct=Object.entries(cs).sort((x,y)=>y[1]-x[1]),cx=ct.length?ct[0][1]:1;
  const h={};rs.slice().sort((x,y)=>x.ts-y.ts).forEach(r=>r.items.forEach(i=>{const k=ck(i.n),hk=k+'|'+r.store;const z=h[hk]=h[hk]||{n:nmOf(k,i.n),k,s:r.store,a:[],b:[]};z.a.push(i.u);z.b.push(entUp(i))}));const ns=new Set(rs.map(r=>sk(r.store))).size;
  const ch=Object.values(h).filter(x=>x.a.length>1).map(x=>{const un=x.b.every(v=>v&&v.k===x.b[0].k),A=un?x.b.map(v=>v.p):x.a,l=A[A.length-1],q=A[A.length-2];return{...x,l,q,sfx:un?'/'+x.b[0].k:'',d:(l-q)/q*100}}).filter(x=>Math.abs(x.d)>=1).sort((x,y)=>Math.abs(y.d)-Math.abs(x.d)).slice(0,5);
  const ds=pv>0?`${tm>=pv?'+':''}${Math.round((tm-pv)/pv*100)}% față de ${sm==='m'?'luna':'săptămâna'} trecută${sm==='m'?'':''}`:'';
@@ -869,14 +873,14 @@ function stats(){const m=$('#m');m.classList.toggle('wide',!prod&&sv==='l');if(p
  <div class="card"><b>Pe zile</b><div class="bars">${days.map((x,i)=>`<div data-i="${i}" class="${x.v?'':'z'}">${sm==='w'?`<small>${x.v?Math.round(x.v):''}</small>`:''}<i style="height:${Math.round(x.v/mx*110)}px"></i><small>${sm==='w'?dl(x.d,{weekday:'short'}):(i===0||(i+1)%5===0?i+1:'')}</small></div>`).join('')}</div>
  <div id="cap" class="mute" style="text-align:center;min-height:20px">Atinge o zi ca să vezi cheltuielile.</div></div>
  <div class="stats-grid">
- ${ct.length?`<div class="stat-pair"><h3 class="sec">Pe categorii</h3><div class="card">${ct.map(([c,v])=>`<div class="sr" data-cat="${esc(c)}" style="display:block;cursor:pointer"><div class="row"><span>${c} <span class="mute">›</span></span><b class="m">${lei(v)}</b></div><div class="pb"><i style="width:${v/cx*100}%"></i></div></div>`).join('')}</div></div>`:''}
+ ${ct.length?`<div class="stat-pair"><h3 class="sec">Pe categorii</h3><div class="mute" style="font-size:13px;margin:-2px 0 6px">Atinge o categorie ca să vezi ce ai cumpărat în ${sm==='m'?'luna':'săptămâna'} aceasta.</div><div class="card">${ct.map(([c,v])=>`<div class="sr" data-cat="${esc(c)}" style="display:block;cursor:pointer"><div class="row"><span>${c} <span class="mute">· ${cp[c].size} ${cp[c].size===1?'produs':'produse'} ›</span></span><b class="m">${lei(v)}</b></div><div class="pb"><i style="width:${v/cx*100}%"></i></div></div>`).join('')}</div></div>`:''}
  ${cm.length?`<div class="stat-pair"><h3 class="sec">Unde ai cheltuit cel mai mult</h3><div class="card">${pl.sort((x,y)=>y.t-x.t).slice(0,8).map(p=>row(p,'× '+p.c,lei(p.t))).join('')}</div></div>
  <div class="stat-pair"><h3 class="sec">Cumpărate cel mai des</h3><div class="card">${pl.sort((x,y)=>y.c-x.c).slice(0,5).map(p=>row(p,lei(p.t)+' lei în total','× '+p.c)).join('')}</div></div>
  ${Object.keys(st).length>1?`<div class="stat-pair"><h3 class="sec">După magazin</h3><div class="card">${Object.entries(st).sort((x,y)=>y[1]-x[1]).map(([k,v])=>`<div class="row sr"><span>${esc(k)}</span><b class="m">${lei(v)}</b></div>`).join('')}</div></div>`:''}`:'<p class="mute">Niciun cec în perioada aceasta.</p>'}
  ${ch.length?`<div class="stat-pair"><h3 class="sec">Prețuri care s-au schimbat</h3><div class="card">${ch.map(x=>row(x,(ns>1?esc(x.s)+' · ':'')+lei(x.q)+' → '+lei(x.l)+' lei'+(x.sfx||''),(x.d>0?'▲ ':'▼ ')+Math.abs(x.d).toFixed(0)+'%',x.d>0?'up':'dn')).join('')}</div></div>`:''}
  </div>`;
  m.querySelectorAll('[data-sm]').forEach(e=>e.onclick=()=>{sm=e.dataset.sm;pd=Date.now();show('fade')});
- m.querySelectorAll('[data-cat]').forEach(e=>e.onclick=()=>{pcat=e.dataset.cat;pq='';sv='p';show()});
+ m.querySelectorAll('[data-cat]').forEach(e=>e.onclick=()=>{pcat=e.dataset.cat;pq='';pper={a:+a,b:+b,t:title};sv='p';show()});
  m.querySelectorAll('[data-i]').forEach(e=>e.onclick=()=>{const x=days[+e.dataset.i];$('#cap').textContent=dl(x.d,{weekday:'long',day:'numeric',month:'long'})+': '+(x.n?lei(x.v)+' lei · '+x.n+(x.n>1?' cecuri':' cec'):'fără cumpărături')});
  $('#mp').onclick=()=>{shift(-1);show('back')};$('#mn').onclick=()=>{shift(1);show('fwd')};bindSv(m);bind(m)}
 let pu=null;
@@ -962,7 +966,7 @@ const cat=k=>META.cats[canon(k)]||META.cats[k]||guess(META.alias&&META.alias[k]?
 const metaRec=()=>({id:'__meta__',cats:META.cats,shop:META.shop,budget:META.budget,links:META.links,pinned:META.pinned,no:META.no,alias:META.alias,sep:META.sep||[],one:META.one||[],dif:META.dif||[],mg:META.mg||{},ex:META.ex||[],ts:0,items:[]});
 const saveMeta=()=>save(metaRec());
 const svSeg=()=>`<div class="seg"><button data-sv="s" class="${sv==='s'?'on':''}">Rezumat</button><button data-sv="p" class="${sv==='p'?'on':''}">Produse</button><button data-sv="c" class="${sv==='c'?'on':''}">Prețuri</button><button data-sv="i" class="${sv==='i'?'on':''}">Idei</button></div>`;
-const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{sv=e.dataset.sv;show()});
+const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{sv=e.dataset.sv;pper=null;show()});
 const card=(r,i)=>{const dr=rview==='drop',op=dr&&dropId===r.id;return`<div class="card${op?' open':''}" data-i="${i}"><div class="row"><b>${esc(r.store)}${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️</span>':''}</b><span class="m tot" style="font-size:18px">${lei(r.total)}</span></div><div class="mute">${fmt(r)} · ${r.items.length} produse${dr?'<span class="chev">▾</span>':''}</div>${op?'':`<div class="th">${r.items.slice(0,6).map(x=>{const p=pho(key(x.n),1);return p?`<img src="${p}" decoding="async">`:''}).join('')}</div>`}${op?rdd(r):''}</div>`};
 function listView(m){
  if(!R.length){m.innerHTML='<div class="ste"><div style="font-size:44px">🧾</div><b>Niciun cec încă</b><br><ol><li>Apasă „Scanează" și alege camera sau introducerea manuală</li><li>Cu camera, produsele apar singure; manual le scrii tu</li><li>Atinge un produs ca să-i pui poză</li></ol><br><button id="ef" class="p">📷 Adaugă primul cec</button><br><button id="efm" style="margin-top:10px">✍️ Adaugă manual</button></div>';$('#ef').onclick=()=>$('#fab').click();$('#efm').onclick=openManual;return}
@@ -1059,7 +1063,7 @@ $('#chc').onclick=()=>{$('#ch').close();scan()};
 $('#chm').onclick=()=>{$('#ch').close();openManual()};
 $('#chx').onclick=()=>$('#ch').close();
 $('#fab').onclick=openChoice;$('#sx').onclick=stop;
-document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const next=b.dataset.t;if(tab===next&&cur<0&&!prod)return;tab=next;cur=-1;prod=null;ed=null;pushNavigation();show()});
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const next=b.dataset.t;if(tab===next&&cur<0&&!prod)return;tab=next;cur=-1;prod=null;ed=null;pper=null;pushNavigation();show()});
 // Butoanele sidebar-ului (desktop) refolosesc acțiunile existente
 if($('#sfab'))$('#sfab').onclick=()=>$('#fab').click();
 if($('#sb2'))$('#sb2').onclick=()=>$('#b2').click();
