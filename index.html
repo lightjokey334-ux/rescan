@@ -97,12 +97,15 @@ button:active:not(:disabled){transform:scale(.95)}
 #m.screen-in{animation:none}
 h1{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 header{view-transition-name:hdr}#bn{view-transition-name:nav}#t{view-transition-name:toast}
-::view-transition-old(root),::view-transition-new(root){animation-duration:.34s;animation-timing-function:var(--e);animation-fill-mode:both}
+::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-fill-mode:both}
+::view-transition-old(root){animation-duration:.12s;animation-timing-function:ease-in}
+::view-transition-new(root){animation-duration:.26s;animation-delay:.08s;animation-timing-function:var(--e)}
+::view-transition-old(hdr),::view-transition-new(hdr){mix-blend-mode:normal}::view-transition-old(hdr){animation:vt-out-f .1s ease-in both}::view-transition-new(hdr){animation:vt-in-f2 .18s var(--e) .06s both}@keyframes vt-in-f2{from{opacity:0}}
 html[data-vt=fwd]::view-transition-old(root){animation-name:vt-out-l}html[data-vt=fwd]::view-transition-new(root){animation-name:vt-in-r}
 html[data-vt=back]::view-transition-old(root){animation-name:vt-out-r}html[data-vt=back]::view-transition-new(root){animation-name:vt-in-l}
 html[data-vt=fade]::view-transition-old(root){animation-name:vt-out-f}html[data-vt=fade]::view-transition-new(root){animation-name:vt-in-f}
-@keyframes vt-out-l{to{opacity:0;transform:translateX(-36px)}}@keyframes vt-in-r{from{opacity:0;transform:translateX(36px)}}
-@keyframes vt-out-r{to{opacity:0;transform:translateX(36px)}}@keyframes vt-in-l{from{opacity:0;transform:translateX(-36px)}}
+@keyframes vt-out-l{to{opacity:0;transform:translateX(-10px)}}@keyframes vt-in-r{from{opacity:0;transform:translateX(18px)}}
+@keyframes vt-out-r{to{opacity:0;transform:translateX(10px)}}@keyframes vt-in-l{from{opacity:0;transform:translateX(-18px)}}
 @keyframes vt-out-f{to{opacity:0}}@keyframes vt-in-f{from{opacity:0;transform:translateY(10px)}}
 #m.in-fwd{animation:vt-in-r .34s var(--e)}#m.in-back{animation:vt-in-l .34s var(--e)}#m.in-fade{animation:vt-in-f .3s var(--e)}
 @keyframes fadein{from{opacity:0}}@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}}@keyframes zoomin{from{opacity:0;transform:scale(.92)}}
@@ -239,7 +242,7 @@ dialog#ad{width:min(92vw,420px);padding:14px 16px 12px}
 /* ===== Sidebar (doar desktop) ===== */
 .sidebar{display:none}
 .stat-pair>h3.sec{margin:18px 0 6px}
-.stat-pair>.card{margin-bottom:6px}.pper{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pper .pert{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.25}.pper button{white-space:nowrap}.pper .pert b{text-transform:capitalize}.pper .pert .mute{font-size:12px}
+.stat-pair>.card{margin-bottom:6px}#b2 .bn{display:none}@media(max-width:440px){#b2 .bw{display:none}#b2 .bn{display:inline}}.card[data-i]{scroll-margin-top:84px;scroll-margin-bottom:116px}.pper{display:flex;flex-direction:column;gap:10px}.pper .perb{display:flex;justify-content:space-between;gap:10px}.pper button{white-space:nowrap}.pper .pert{display:flex;flex-direction:column;gap:2px;line-height:1.3}.pper .pert b{font-size:17px;text-transform:capitalize}.pper .pert .mute{font-size:13px}
 
 /* ===== Layout pentru desktop ===== */
 @media(min-width:1024px){
@@ -431,7 +434,7 @@ details.adv{margin-top:12px;border-top:1px dashed var(--line);padding-top:2px}de
   <button type="button" class="snav" id="sb2"><span aria-hidden="true">＋</span> <span>Lipește link</span></button>
   <button type="button" class="snav" id="sb4"><span aria-hidden="true">⚙️</span> <span>Setări</span></button>
 </aside>
-<header><h1 id="h">Cecurile mele</h1><button id="b2">＋ Lipește link</button><button id="b4" title="Setări și copie de siguranță">⚙️</button></header>
+<header><h1 id="h">Cecurile mele</h1><button id="b2" aria-label="Lipește link">＋ <span class="bw">Lipește link</span><span class="bn">Link</span></button><button id="b4" title="Setări și copie de siguranță">⚙️</button></header>
 <main id="m"></main><div id="t" popover="manual"></div>
 <nav id="bn"><button data-t="r">🧾<small>Cecuri</small></button><button id="fab">📷<small>Scanează</small></button><button data-t="s">📊<small>Statistici</small></button></nav>
 <dialog id="ad"><div class="row" style="align-items:center"><h2 id="at" tabindex="-1" autofocus style="margin:0;font-size:20px;outline:none">Setări</h2><button id="ax" aria-label="Închide">✕</button></div>
@@ -479,12 +482,22 @@ details.adv{margin-top:12px;border-top:1px dashed var(--line);padding-top:2px}de
 <div class="row" style="margin-top:14px;justify-content:flex-end"><button id="ps-x" class="p">Gata</button></div></dialog>
 <script>
 const $=s=>document.querySelector(s);const ym=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
-let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,pfk=null,pmode='a',pall=false,hv={},HVALL=localStorage.hvAll==='1',lastErr={},retrying=0,ed=null,sq='',sv='s',META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{},sep:[],one:[],dif:[],mg:{},ex:[]};
-const navigationState=()=>({checkScanner:true,tab,receiptId:cur>=0&&R[cur]?R[cur].id:null,prod,editing:!!ed});
+let db,R=[],P={},cur=-1,pk=null,pend=null,tab='r',mo=ym(new Date()),sm='m',pd=Date.now(),prod=null,pfk=null,pmode='a',pall=false,hv={},HVALL=localStorage.hvAll==='1',lastErr={},retrying=0,ed=null,sq='',sv='s',pcat=null,pper=null,skipPop=0,META={cats:{},shop:[],budget:0,links:{},pinned:[],no:[],alias:{},sep:[],one:[],dif:[],mg:{},ex:[]};
+const navigationState=()=>({checkScanner:true,tab,receiptId:cur>=0&&R[cur]?R[cur].id:null,prod,editing:!!ed,sv,pper,pcat});
 const pushNavigation=()=>history.pushState(navigationState(),'');
+// Ferestrele peste pagină (poza mărită, camera) primesc o intrare în istoric: gestul Înapoi le închide în loc să plece din pagină.
+const ovl={sc:false,lb:false};
+const ovOpen=n=>{if(!ovl[n]){ovl[n]=true;history.pushState({...navigationState(),[n]:1},'')}};
+const ovClose=(n,quiet)=>{if(ovl[n]){ovl[n]=false;if(!quiet){skipPop++;history.back()}}};
+const lbHide=()=>{$('#lb').hidden=true;ovClose('lb')};
 function openReceipt(i){const changed=tab!=='r'||cur!==i||prod!==null;tab='r';prod=null;cur=i;ed=null;if(changed)pushNavigation();show()}
-addEventListener('popstate',e=>{const s=e.state;if(!s||!s.checkScanner){tab='r';prod=null;cur=-1;ed=null;return show()}
- tab=s.tab==='s'?'s':s.tab==='l'?'l':'r';prod=s.prod||null;cur=s.receiptId?R.findIndex(r=>r.id===s.receiptId):-1;ed=s.editing&&cur>=0?JSON.parse(JSON.stringify(R[cur])):null;show()});
+addEventListener('popstate',e=>{const s=e.state;
+ if(skipPop>0){skipPop--;return}
+ if(ovl.lb){ovl.lb=false;lbHide();return}
+ if(ovl.sc){ovl.sc=false;stop();return}
+ if(s&&(s.lb||s.sc)){history.back();return}
+ if(!s||!s.checkScanner){tab='r';prod=null;cur=-1;ed=null;return show()}
+ tab=s.tab==='s'?'s':s.tab==='l'?'l':'r';prod=s.prod||null;cur=s.receiptId?R.findIndex(r=>r.id===s.receiptId):-1;ed=s.editing&&cur>=0?JSON.parse(JSON.stringify(R[cur])):null;sv=s.sv||'s';pper=s.pper||null;pcat=s.pcat||null;show()});
 history.replaceState(navigationState(),'');
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const toast=(s,act,fn,act2,fn2)=>{const t=$('#t');t.textContent=s;[[act,fn],[act2,fn2]].forEach(([a,f])=>{if(!a)return;const b=document.createElement('button');b.textContent=a;b.style.cssText='margin-left:10px;border-color:var(--bg);color:var(--bg);padding:4px 10px';b.onclick=()=>{t.classList.remove('on');f()};t.append(b)});
@@ -587,10 +600,10 @@ $('#lkopen').onclick=()=>{$('#ad').close();openLinks()};
 document.addEventListener('pointerdown',e=>{const d=document.querySelector('.dd.open');if(d&&(!d.contains(e.target)||e.target===d)){d.classList.remove('open');dgAt=Date.now()}});
 addEventListener('keydown',e=>{if(e.key==='Escape'){const d=document.querySelector('.dd.open');if(d)d.classList.remove('open')}});
 // ===== Produse pe categorii =====
-let pcat=null,psort='t',pq='',pper=null;
+let psort='t',pq='';
 // perioada aleasă în Rezumat (lună/săptămână): când intri într-o categorie, Produse arată doar ce ai cumpărat atunci
-const pperBox=()=>pper?`<div class="card pper"><button id="pperb" class="mini">‹ Rezumat</button><div class="pert"><b>📅 ${esc(pper.t)}</b><span class="mute">Doar ce ai cumpărat atunci</span></div><button id="pperx" class="mini">Arată tot</button></div>`:'';
-const bindPper=m=>{if($('#pperb'))$('#pperb').onclick=()=>{pper=null;sv='s';show()};if($('#pperx'))$('#pperx').onclick=()=>{pper=null;show()}};
+const pperBox=()=>pper?`<div class="card pper"><div class="perb"><button id="pperb" class="mini">‹ Rezumat</button><button id="pperx" class="mini">Arată tot</button></div><div class="pert"><b>📅 ${esc(pper.t)}</b><span class="mute">Doar ce ai cumpărat atunci</span></div></div>`:'';
+const bindPper=m=>{if($('#pperb'))$('#pperb').onclick=()=>{if(history.state&&history.state.pper)history.back();else{pper=null;sv='s';show()}};if($('#pperx'))$('#pperx').onclick=()=>{pper=null;history.replaceState(navigationState(),'');show()}};
 function produse(m){
  const rs0=R.filter(r=>!r.pending),rs=pper?rs0.filter(r=>r.ts>=pper.a&&r.ts<pper.b):rs0;m.innerHTML=svSeg()+pperBox();
  if(!rs0.length){m.insertAdjacentHTML('beforeend','<p class="mute">Produsele apar după ce ai cecuri citite.</p>');bindSv(m);return}
@@ -600,12 +613,12 @@ function produse(m){
  const cats=Object.entries(cc).sort((a,b)=>b[1]-a[1]);if(pcat&&!cc[pcat])pcat=null;
  m.insertAdjacentHTML('beforeend',`<div class="dd" id="pdd"><button type="button" class="ddb" id="pddb" aria-haspopup="listbox" aria-expanded="false"><span id="pddl">${pcat?esc(pcat)+' · '+cc[pcat]:'Toate categoriile · '+all.length}</span><span class="car">▾</span></button><div class="ddp" role="listbox"><button type="button" class="ddo ${pcat?'':'on'}" data-pc=""><span>Toate categoriile</span><span class="mute">${all.length}</span></button>${cats.map(([c,n])=>`<button type="button" class="ddo ${pcat===c?'on':''}" data-pc="${esc(c)}"><span>${esc(c)}</span><span class="mute">${n}</span></button>`).join('')}</div></div>
  ${sbox('pq','🔍 Caută în produse',pq)}
- <div class="row" style="align-items:center;margin:8px 0"><span class="mute" id="psum"></span><span class="pm" style="margin:0"><button class="mini ${psort==='t'?'on':''}" data-ps="t">Cheltuit</button><button class="mini ${psort==='r'?'on':''}" data-ps="r">Recent</button><button class="mini ${psort==='n'?'on':''}" data-ps="n">A–Z</button></span></div>
+ <div class="mute" id="psum" style="margin:12px 2px 6px"></div><div class="pm" style="margin:0 0 10px;flex-wrap:wrap"><button class="mini ${psort==='t'?'on':''}" data-ps="t">Cheltuit</button><button class="mini ${psort==='r'?'on':''}" data-ps="r">Recent</button><button class="mini ${psort==='n'?'on':''}" data-ps="n">A–Z</button></div>
  <div class="card" id="pl"></div>`);
  const draw=anim=>{const q=key(pq);const a=all.filter(o=>(!pcat||o.cat===pcat)&&(!q||key(o.n).includes(q)||o.k.includes(q)||[...o.hs].some(x=>x.includes(q))));
   a.sort(psort==='n'?(x,y)=>x.n.localeCompare(y.n,'ro'):psort==='r'?(x,y)=>y.ts-x.ts:(x,y)=>y.t-x.t);
   $('#psum').textContent=a.length+(a.length===1?' produs':' produse')+' · '+Math.round(a.reduce((s,o)=>s+o.t,0))+' lei';
-  const pl=$('#pl');pl.innerHTML=a.length?a.map(o=>row(o,pper?'× '+String(+o.q.toFixed(3))+' · '+o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+dl(o.ts,{day:'numeric',month:'short'}):o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+lei(o.u)+(o.up?' · '+lei(o.up.p)+'/'+o.up.k:''),lei(o.t))).join(''):'<div class="mute">Nimic găsit.</div>';
+  const pl=$('#pl');pl.innerHTML=a.length?a.map(o=>row(o,pper?'× '+String(+o.q.toFixed(3))+(o.c>1?' · '+o.c+' cumpărări · ultima ':' · ')+dl(o.ts,{day:'numeric',month:'short'}):o.c+(o.c===1?' cumpărare':' cumpărări')+' · ultima '+lei(o.u)+(o.up?' · '+lei(o.up.p)+'/'+o.up.k:''),lei(o.t))).join(''):'<div class="mute">Nimic găsit.</div>';
   bind(pl);if(anim){pl.classList.remove('swap');void pl.offsetWidth;pl.classList.add('swap')}};
  const dd=$('#pdd'),setOpen=o=>{dd.classList.toggle('open',o);$('#pddb').setAttribute('aria-expanded',o)};
  $('#pddb').onclick=()=>setOpen(!dd.classList.contains('open'));
@@ -844,7 +857,7 @@ function _show(){hvClose();const m=$('#m');m.classList.remove('screen-in','wide'
  if($('#rt'))$('#rt').onclick=async()=>{toast('Se încearcă...');await retry();const x=R.find(y=>y.id===r.id);if(x&&x.pending)toast('Încă nu merge. Verifică internetul sau proxy-ul.')};
  m.querySelectorAll('[data-k]').forEach(e=>e.onclick=()=>zoom(e.dataset.k));bindAl(m,r);bind(m);deckBind(m)}
 const mh=i=>{const f=x=>new Date(R[x].ts).toLocaleDateString('ro-RO',{month:'long',year:'numeric'});return i&&f(i)===f(i-1)?'':'<h3 class="mute" style="margin:14px 0 8px;text-transform:capitalize">'+f(i)+'</h3>'};
-const zoom=async k=>{pk=phk(k);pfMode='rep';const im=pho(k,1);if(!im)return $('#pf').click();const c=canon(k);let f='';for(const x of (SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))])){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img){f=r.img;break}}lbCur=f||im;$('#li').src=lbCur;$('#lb').hidden=false;lbReset()};
+const zoom=async k=>{pk=phk(k);pfMode='rep';const im=pho(k,1);if(!im)return $('#pf').click();const c=canon(k);let f='';for(const x of (SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))])){const r=await tx('p','readonly',o=>o.get(x));if(r&&r.img){f=r.img;break}}lbCur=f||im;$('#li').src=lbCur;$('#lb').hidden=false;ovOpen('lb');lbReset()};
 const bind=m=>{m.querySelectorAll('[data-ph]').forEach(e=>e.onclick=()=>zoom(e.dataset.ph));m.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>openProd(e.dataset.p))};
 const dl=(d,o)=>new Date(d).toLocaleDateString('ro-RO',o),D0=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
 function range(){const d=new Date(pd);if(sm==='m'){const a=new Date(d.getFullYear(),d.getMonth(),1);return[a,new Date(a.getFullYear(),a.getMonth()+1,1)]}
@@ -880,7 +893,7 @@ function stats(){const m=$('#m');m.classList.toggle('wide',!prod&&sv==='l');if(p
  ${ch.length?`<div class="stat-pair"><h3 class="sec">Prețuri care s-au schimbat</h3><div class="card">${ch.map(x=>row(x,(ns>1?esc(x.s)+' · ':'')+lei(x.q)+' → '+lei(x.l)+' lei'+(x.sfx||''),(x.d>0?'▲ ':'▼ ')+Math.abs(x.d).toFixed(0)+'%',x.d>0?'up':'dn')).join('')}</div></div>`:''}
  </div>`;
  m.querySelectorAll('[data-sm]').forEach(e=>e.onclick=()=>{sm=e.dataset.sm;pd=Date.now();show('fade')});
- m.querySelectorAll('[data-cat]').forEach(e=>e.onclick=()=>{pcat=e.dataset.cat;pq='';pper={a:+a,b:+b,t:title};sv='p';show()});
+ m.querySelectorAll('[data-cat]').forEach(e=>e.onclick=()=>{pcat=e.dataset.cat;pq='';pper={a:+a,b:+b,t:title};sv='p';pushNavigation();show()});
  m.querySelectorAll('[data-i]').forEach(e=>e.onclick=()=>{const x=days[+e.dataset.i];$('#cap').textContent=dl(x.d,{weekday:'long',day:'numeric',month:'long'})+': '+(x.n?lei(x.v)+' lei · '+x.n+(x.n>1?' cecuri':' cec'):'fără cumpărături')});
  $('#mp').onclick=()=>{shift(-1);show('back')};$('#mn').onclick=()=>{shift(1);show('fwd')};bindSv(m);bind(m)}
 let pu=null;
@@ -966,7 +979,7 @@ const cat=k=>META.cats[canon(k)]||META.cats[k]||guess(META.alias&&META.alias[k]?
 const metaRec=()=>({id:'__meta__',cats:META.cats,shop:META.shop,budget:META.budget,links:META.links,pinned:META.pinned,no:META.no,alias:META.alias,sep:META.sep||[],one:META.one||[],dif:META.dif||[],mg:META.mg||{},ex:META.ex||[],ts:0,items:[]});
 const saveMeta=()=>save(metaRec());
 const svSeg=()=>`<div class="seg"><button data-sv="s" class="${sv==='s'?'on':''}">Rezumat</button><button data-sv="p" class="${sv==='p'?'on':''}">Produse</button><button data-sv="c" class="${sv==='c'?'on':''}">Prețuri</button><button data-sv="i" class="${sv==='i'?'on':''}">Idei</button></div>`;
-const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{sv=e.dataset.sv;pper=null;show()});
+const bindSv=m=>m.querySelectorAll('[data-sv]').forEach(e=>e.onclick=()=>{const ch=sv!==e.dataset.sv;sv=e.dataset.sv;pper=null;if(ch)pushNavigation();else history.replaceState(navigationState(),'');show()});
 const card=(r,i)=>{const dr=rview==='drop',op=dr&&dropId===r.id;return`<div class="card${op?' open':''}" data-i="${i}"><div class="row"><b>${esc(r.store)}${r.demo?' <span class="mute">(demo)</span>':''}${r.manual?' <span class="mute">✍️</span>':''}</b><span class="m tot" style="font-size:18px">${lei(r.total)}</span></div><div class="mute">${fmt(r)} · ${r.items.length} produse${dr?'<span class="chev">▾</span>':''}</div>${op?'':`<div class="th">${r.items.slice(0,6).map(x=>{const p=pho(key(x.n),1);return p?`<img src="${p}" decoding="async">`:''}).join('')}</div>`}${op?rdd(r):''}</div>`};
 function listView(m){
  if(!R.length){m.innerHTML='<div class="ste"><div style="font-size:44px">🧾</div><b>Niciun cec încă</b><br><ol><li>Apasă „Scanează" și alege camera sau introducerea manuală</li><li>Cu camera, produsele apar singure; manual le scrii tu</li><li>Atinge un produs ca să-i pui poză</li></ol><br><button id="ef" class="p">📷 Adaugă primul cec</button><br><button id="efm" style="margin-top:10px">✍️ Adaugă manual</button></div>';$('#ef').onclick=()=>$('#fab').click();$('#efm').onclick=openManual;return}
@@ -1051,12 +1064,12 @@ async function decode(src,w,h){
  await jsqr();const k=Math.min(1,720/Math.max(w,h)),c=document.createElement('canvas');c.width=Math.round(w*k);c.height=Math.round(h*k);
  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(src,0,0,c.width,c.height);
  const r=jsQR(x.getImageData(0,0,c.width,c.height).data,c.width,c.height);return r&&hit(r.data)?r.data:null}
-function stop(){clearInterval(tm);st&&st.getTracks().forEach(t=>t.stop());st=null;$('#sc').hidden=true}
+function stop(q){clearInterval(tm);st&&st.getTracks().forEach(t=>t.stop());st=null;$('#sc').hidden=true;ovClose('sc',q)}
 async function scan(){
  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)return $('#qf').click();
  try{st=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})}catch(e){toast('Camera nu e permisă. Fă o poză codului.');return $('#qf').click()}
- const v=$('#v');v.srcObject=st;await v.play();$('#sc').hidden=false;let busy=0,w=0;
- tm=setInterval(async()=>{if(busy||!v.videoWidth)return;busy=1;try{const u=await decode(v,v.videoWidth,v.videoHeight);if(u){stop();addLink(u)}}catch(e){if(!w){w=1;toast('Cititorul QR nu s-a încărcat. Conectează-te o dată la internet.')}}busy=0},300)}
+ const v=$('#v');v.srcObject=st;await v.play();$('#sc').hidden=false;ovOpen('sc');let busy=0,w=0;
+ tm=setInterval(async()=>{if(busy||!v.videoWidth)return;busy=1;try{const u=await decode(v,v.videoWidth,v.videoHeight);if(u){stop(true);addLink(u)}}catch(e){if(!w){w=1;toast('Cititorul QR nu s-a încărcat. Conectează-te o dată la internet.')}}busy=0},300)}
 // Dialog de alegere: cameră sau introducere manuală
 const openChoice=()=>{$('#ch').showModal()};
 $('#chc').onclick=()=>{$('#ch').close();scan()};
@@ -1069,8 +1082,8 @@ if($('#sfab'))$('#sfab').onclick=()=>$('#fab').click();
 if($('#sb2'))$('#sb2').onclick=()=>$('#b2').click();
 if($('#sb4'))$('#sb4').onclick=()=>$('#b4').click();
 $('#pxs').onclick=()=>{localStorage.px=$('#px').value.trim();toast('Proxy salvat')};
-$('#lc').onclick=()=>$('#lb').hidden=true;$('#lb').onclick=e=>{if(e.target.id==='lb')$('#lb').hidden=true};
-$('#lp').onclick=()=>{pfMode='rep';$('#lb').hidden=true;$('#pf').click()};
+$('#lc').onclick=()=>lbHide();$('#lb').onclick=e=>{if(e.target.id==='lb')lbHide()};
+$('#lp').onclick=()=>{pfMode='rep';lbHide();$('#pf').click()};
 // ===== Istoricul pozelor =====
 // „Ambalaj nou” păstrează poza veche: ea se salvează sub cheia „produs#data”, în aceleași magazine p/pt, deci merge la fel și la sincronizare și backup.
 let pfMode='rep',lbOld=null,lbCur='';
@@ -1084,17 +1097,17 @@ const lbRender=async()=>{const h=await lbHist(),box=$('#lh');
  box.innerHTML=h.length?`<div class="lht">Poze mai vechi · atinge una ca să o vezi</div><div class="lhs"><button class="lhb on" data-hk=""><img src="${pho(pk,1)||''}" alt=""><span>Acum</span></button>${h.map(o=>`<button class="lhb" data-hk="${esc(o.k)}"><img src="${P[o.k]}" alt=""><span>până la ${dl(o.ts,{day:'numeric',month:'short'})}</span></button>`).join('')}</div>`:'<div class="lht">Ambalaj schimbat? „Ambalaj nou” păstrează poza veche.</div>';
  box.querySelectorAll('.lhb').forEach(b=>b.onclick=()=>lbShow(b.dataset.hk))};
 const lbReset=()=>{lbOld=null;$('#lr1').hidden=false;$('#lr2').hidden=true;lbRender()};
-$('#ln').onclick=()=>{pfMode='new';$('#lb').hidden=true;$('#pf').click()};
+$('#ln').onclick=()=>{pfMode='new';lbHide();$('#pf').click()};
 $('#lq').onclick=()=>lbShow('');
 $('#lu').onclick=async()=>{const hk=lbOld;if(!hk)return;const r=await tx('p','readonly',o=>o.get(hk));if(!r||!r.img)return;
  await lbArchive();await tx('p','readwrite',o=>o.put({k:pk,img:r.img,u:Date.now()}));await setThumb(pk,r.img);await lbDrop(hk);
- $('#lb').hidden=true;sync();await load();show();toast('Poza veche e din nou cea principală')};
+ lbHide();sync();await load();show();toast('Poza veche e din nou cea principală')};
 $('#lx').onclick=async()=>{const hk=lbOld;if(!hk)return;const r=await tx('p','readonly',o=>o.get(hk)),img=r&&r.img||'';
  await lbDrop(hk);await load();await lbRender();await lbShow('');sync();
  toast('Poză veche ștearsă','Anulează',async()=>{if(img){await tx('p','readwrite',o=>o.put({k:hk,img,u:Date.now()}));await setThumb(hk,img)}sync();await load();if(!$('#lb').hidden)lbRender();show()})};
 
 // Ștergerea pozei = înlocuire cu o înregistrare goală (img:''), ca să se propage prin sincronizare pe toate dispozitivele; se șterg și pozele numelor unite
-$('#ld').onclick=async()=>{const k=pk;$('#lb').hidden=true;if(!k)return;const c=canon(k),ks=(SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))]).filter(x=>P[x]);if(!ks.length)return;
+$('#ld').onclick=async()=>{const k=pk;lbHide();if(!k)return;const c=canon(k),ks=(SEP.has(k)?[k]:[c,...(GR[c]||[]).filter(y=>!SEP.has(y))]).filter(x=>P[x]);if(!ks.length)return;
  const old=[];for(const x of ks){const r=await tx('p','readonly',o=>o.get(x));old.push([x,r&&r.img||P[x]])}for(const x of ks){await tx('p','readwrite',o=>o.put({k:x,img:'',u:Date.now()}));await tx('pt','readwrite',o=>o.delete(x))}
  // dacă produsul are poze mai vechi, cea mai recentă devine din nou poza principală
  let pro=null;const hs=await lbHist();if(hs.length){const r=await tx('p','readonly',o=>o.get(hs[0].k));if(r&&r.img){pro={hk:hs[0].k,img:r.img};await tx('p','readwrite',o=>o.put({k,img:r.img,u:Date.now()}));await setThumb(k,r.img);await lbDrop(hs[0].k)}}
